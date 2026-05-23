@@ -1,10 +1,41 @@
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+
+import Login from "./pages/Login";
+
+import Dashboard from "./pages/Dashboard";
+
+import PrivateRoute from "./routes/PrivateRoute";
+
 function App() {
 
   return (
-    <div>
-      <h1>Sistema de Planejamento de Capeamento</h1>
-    </div>
-  )
+
+    <BrowserRouter>
+
+      <Routes>
+
+        <Route
+          path="/"
+          element={<Login />}
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+      </Routes>
+
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
