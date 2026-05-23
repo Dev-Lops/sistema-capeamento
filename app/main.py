@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+app = FastAPI(
+    title="Sistema de Planejamento de Capeamento"
+)
 
 @app.get("/")
 def home():
     return {
-        "mensagem": "Sistema de Planejamento de Capeamento"
+        "status": "ok",
+        "mensagem": "Sistema funcionando"
     }
