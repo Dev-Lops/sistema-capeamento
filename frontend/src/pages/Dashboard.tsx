@@ -104,7 +104,7 @@ function Dashboard() {
               hover:text-blue-400
             "
           >
-            Atividades
+            <a href='/activities/'>Atividades</a>
           </button>
 
         </nav>

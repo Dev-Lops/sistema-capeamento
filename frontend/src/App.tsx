@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 
 import PrivateRoute from "./routes/PrivateRoute";
+import Activities from "./pages/Activities.tsx";
 
 function App() {
 
@@ -31,6 +32,14 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+        path="/activities"
+        element={
+            <PrivateRoute>
+                <Activities/>
+            </PrivateRoute>
+        }/>
 
       </Routes>
 

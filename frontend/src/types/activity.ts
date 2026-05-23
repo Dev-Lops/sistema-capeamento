@@ -13,4 +13,8 @@ export type Activity = {
   responsavel: string;
 
   obra: string;
+
+  data_inicio?: string;
+
+  data_fim?: string;
 };
