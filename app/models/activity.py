@@ -1,7 +1,7 @@
 from datetime import date
 
 from pydantic import BaseModel
-from sqlalchemy import Integer, Column, String, Text, Date
+from sqlalchemy import Integer, Column, String, Text, Date, Boolean
 
 from app.db import Base
 
@@ -26,12 +26,12 @@ class Activity(Base):
 
     status = Column(
         String,
-        default="planejado"
+        default = "planejado"
     )
 
     prioridade = Column(
         String,
-        default="media"
+        default = "media"
     )
 
     data_inicio = Column(
@@ -50,6 +50,11 @@ class Activity(Base):
         String
     )
 
+    ativo = Column(
+        Boolean,
+        default=True
+    )
+
 class ActivityUpdate(BaseModel):
     titulo: str
 
@@ -66,3 +71,5 @@ class ActivityUpdate(BaseModel):
     responsavel: str
 
     obra: str
+
+    ativo: bool

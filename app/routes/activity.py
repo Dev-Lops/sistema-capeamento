@@ -63,8 +63,9 @@ def listar_atividades(
     db: Session = Depends(get_db),
     usuario=Depends(get_current_user)
 ):
-
-    query = db.query(Activity)
+    query = db.query(Activity).filter(
+        Activity.ativo == True
+    )
 
     if status:
         query = query.filter(
@@ -120,3 +121,28 @@ def atualizar_atividade(
     db.refresh(atividade)
 
     return atividade
+
+@router.delete("/{activity_id}")
+def deletar_atividade(
+    activity_id: int,
+    db: Session = Depends(get_db),
+    usuario=Depends(get_current_user)
+):
+
+    atividade = db.query(Activity).filter(
+        Activity.id == activity_id
+    ).first()
+
+    if not atividade:
+        raise HTTPException(
+            status_code=404,
+            detail="Atividade não encontrada"
+        )
+
+    atividade.ativo = False
+
+    db.commit()
+
+    return {
+        "mensagem": "Atividade removida"
+    }
