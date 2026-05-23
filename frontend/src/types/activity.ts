@@ -1,0 +1,16 @@
+export type Activity = {
+
+  id: number;
+
+  titulo: string;
+
+  descricao: string;
+
+  status: string;
+
+  prioridade: string;
+
+  responsavel: string;
+
+  obra: string;
+};
