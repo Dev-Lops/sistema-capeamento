@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlalchemy import Integer, Column, String, Text, Date
 
 from app.db import Base
@@ -46,3 +47,20 @@ class Activity(Base):
     obra = Column(
         String
     )
+
+class ActivityUpdate(BaseModel):
+    titulo: str
+
+    descricao: str | None = None
+
+    status: str
+
+    prioridade: str
+
+    data_inicio: date
+
+    data_fim: date
+
+    responsavel: str
+
+    obra: str

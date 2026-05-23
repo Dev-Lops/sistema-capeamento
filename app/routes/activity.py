@@ -1,11 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi import Depends
 
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 
-from app.models.activity import Activity
+from app.models.activity import Activity, ActivityUpdate
 
 from fastapi import Query
 
@@ -84,3 +84,39 @@ def listar_atividades(
     atividades = query.all()
 
     return atividades
+
+@router.put(
+    "/{activity_id}",
+    response_model=ActivityResponse
+)
+def atualizar_atividade(
+    activity_id: int,
+    activity: ActivityUpdate,
+    db: Session = Depends(get_db),
+    usuario=Depends(get_current_user)
+):
+
+    atividade = db.query(Activity).filter(
+        Activity.id == activity_id
+    ).first()
+
+    if not atividade:
+        raise HTTPException(
+            status_code=404,
+            detail="Atividade não encontrada"
+        )
+
+    atividade.titulo = activity.titulo
+    atividade.descricao = activity.descricao
+    atividade.status = activity.status
+    atividade.prioridade = activity.prioridade
+    atividade.data_inicio = activity.data_inicio
+    atividade.data_fim = activity.data_fim
+    atividade.responsavel = activity.responsavel
+    atividade.obra = activity.obra
+
+    db.commit()
+
+    db.refresh(atividade)
+
+    return atividade
