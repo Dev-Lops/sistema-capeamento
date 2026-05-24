@@ -5,9 +5,20 @@ from app.routes.auth import router as auth_router
 from app.routes.user import router as user_router
 from app.routes.activity import router as activity_router
 from app.routes.dashboard import router as dashboard_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Sistema de Planejamento de Capeamento"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(auth_router)

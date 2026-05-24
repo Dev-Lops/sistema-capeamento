@@ -16,6 +16,12 @@ from app.schemas.activity import (
 
 from app.core.deps import get_current_user
 
+from app.core.deps import (
+    get_current_user,
+    require_admin,
+    require_admin_or_planner
+)
+
 
 router = APIRouter(
     prefix="/activities",
@@ -30,7 +36,7 @@ router = APIRouter(
 def criar_atividade(
     activity: ActivityCreate,
     db: Session = Depends(get_db),
-    usuario=Depends(get_current_user)
+    usuario = Depends(require_admin_or_planner)
 ):
 
     nova_atividade = Activity(
@@ -61,7 +67,7 @@ def listar_atividades(
     prioridade: str | None = Query(default=None),
     obra: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    usuario=Depends(get_current_user)
+    usuario = Depends(require_admin_or_planner)
 ):
     query = db.query(Activity).filter(
         Activity.ativo == True
@@ -94,7 +100,7 @@ def atualizar_atividade(
     activity_id: int,
     activity: ActivityUpdate,
     db: Session = Depends(get_db),
-    usuario=Depends(get_current_user)
+    usuario = Depends(require_admin_or_planner)
 ):
 
     atividade = db.query(Activity).filter(
@@ -126,7 +132,7 @@ def atualizar_atividade(
 def deletar_atividade(
     activity_id: int,
     db: Session = Depends(get_db),
-    usuario=Depends(get_current_user)
+    usuario = Depends(require_admin)
 ):
 
     atividade = db.query(Activity).filter(
