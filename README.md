@@ -25,7 +25,7 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-python -m app.create_tables
+alembic upgrade head
 python -m app.seed
 
 uvicorn app.main:app --reload
@@ -64,20 +64,39 @@ App: http://localhost:5173
 
 Se você já tinha usuários antigos (`encarregado`, `engenharia`), rode o seed de novo para criar os novos ou atualize o `role` manualmente no banco.
 
+## Migrações com Alembic (Fase 4)
+
+O schema do banco é versionado em `alembic/versions/`.
+
+```bash
+# aplicar migrações pendentes
+alembic upgrade head
+
+# nova migração após alterar models
+alembic revision --autogenerate -m "descricao da mudanca"
+alembic upgrade head
+
+# banco já existe e está igual ao código (sem rodar SQL)
+alembic stamp head
+```
+
+`python -m app.create_tables` é atalho para `alembic upgrade head`.
+
 ## Domínio unificado (Fase 3)
 
 - **Obra** (`/obras`) — cadastro completo (nome, cliente, local). Substitui `/works`.
 - **Atividade** — vinculada por FK: `obra_id`, `project_id`, `team_id`, `responsavel_id`.
 - **Work** removido.
 
-### Migrar banco existente
+### Banco legado (antes da Fase 3)
 
 ```bash
 python -m app.migrate_phase3
+alembic stamp head
 python -m app.seed
 ```
 
-Ou recrie o banco do zero — **pare o uvicorn antes** (`Ctrl+C` no terminal dele):
+### Recriar do zero — **pare o uvicorn antes** (`Ctrl+C`):
 
 ```bash
 python -m app.reset_db
@@ -92,7 +111,7 @@ Se `reset_db` travar, outro processo ainda está usando o Postgres (uvicorn, see
 > ```bash
 > PGPASSWORD=sua_senha dropdb -h localhost -U postgres sistema_capeamento
 > PGPASSWORD=sua_senha createdb -h localhost -U postgres sistema_capeamento
-> python -m app.create_tables && python -m app.seed
+> alembic upgrade head && python -m app.seed
 > ```
 
 ## Segurança da API (Fase 2)

@@ -1,7 +1,19 @@
-import app.models  # noqa: F401 — registra todos os models no metadata
+"""
+Aplica migrações Alembic (substitui create_all direto).
 
-from app.db import Base, engine
+Uso:
+    python -m app.create_tables
+"""
 
-Base.metadata.create_all(bind=engine)
+from alembic.config import Config
+from alembic import command
 
-print("Tabelas criadas com sucesso")
+
+def run():
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+    print("Migrações aplicadas com sucesso")
+
+
+if __name__ == "__main__":
+    run()

@@ -1,7 +1,7 @@
 """
-Recria todas as tabelas usando DATABASE_URL do .env.
+Recria o banco via Alembic (schema limpo + migrações).
 
-IMPORTANTE: pare o uvicorn antes (Ctrl+C), senão o reset pode travar.
+IMPORTANTE: pare o uvicorn antes (Ctrl+C), senão pode travar.
 
 Uso:
     python -m app.reset_db
@@ -12,8 +12,11 @@ import app.models  # noqa: F401
 
 from sqlalchemy import text
 
+from alembic import command
+from alembic.config import Config
+
 from app.config import DATABASE_URL
-from app.db import Base, engine
+from app.db import engine
 
 
 def _encerrar_outras_conexoes(conn):
@@ -41,15 +44,13 @@ def run():
     print(f"Conectando em {DATABASE_URL.split('@')[-1]}...")
 
     with engine.connect() as conn:
-        conn = conn.execution_options(
-            isolation_level="AUTOCOMMIT"
-        )
-
+        conn = conn.execution_options(isolation_level="AUTOCOMMIT")
         _encerrar_outras_conexoes(conn)
         _recriar_schema(conn)
 
-    print("Criando tabelas...")
-    Base.metadata.create_all(bind=engine)
+    print("Aplicando migrações Alembic...")
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
     engine.dispose()
 
     print("Banco resetado com sucesso")
