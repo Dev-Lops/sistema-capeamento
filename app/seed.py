@@ -93,6 +93,8 @@ def criar_obras():
 
 def criar_atividades():
 
+    print("Criando atividades...")
+
     if db.query(Activity).count() > 0:
         print("Atividades já existem, pulando seed de atividades")
         return
