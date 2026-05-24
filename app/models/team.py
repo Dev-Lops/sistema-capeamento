@@ -1,7 +1,7 @@
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import ForeignKey
+from sqlalchemy import Boolean
 
 from app.db import Base
 
@@ -21,12 +21,18 @@ class Team(Base):
         nullable=False
     )
 
-    company_id = Column(
-        Integer,
-        ForeignKey("companies.id")
+    tipo = Column(
+        String,
+        nullable=False
+    )
+    # propria | terceirizada
+
+    empresa = Column(
+        String,
+        nullable=True
     )
 
-    work_id = Column(
-        Integer,
-        ForeignKey("works.id")
+    ativo = Column(
+        Boolean,
+        default=True
     )

@@ -19,19 +19,23 @@ import type {
   Project,
 } from "../types/project";
 
+import type {
+  Team,
+} from "../types/team";
+
 import {
   useAuth,
 } from "../context/AuthContext";
 
 function Activities() {
 
+  const { user } = useAuth();
+
   /*
   ===================================
-  AUTH
+  PERMISSÕES
   ===================================
   */
-
-  const { user } = useAuth();
 
   const isAdmin =
     user?.role === "admin";
@@ -56,55 +60,47 @@ function Activities() {
 
   const [titulo,
     setTitulo] =
-      useState("");
+    useState("");
 
   const [descricao,
     setDescricao] =
-      useState("");
+    useState("");
 
   const [status,
     setStatus] =
-      useState("planejado");
+    useState("planejado");
 
   const [prioridade,
     setPrioridade] =
-      useState("media");
+    useState("media");
 
   const [responsavel,
     setResponsavel] =
-      useState("");
+    useState("");
 
   const [obra,
     setObra] =
-      useState("");
+    useState("");
 
   const [dataInicio,
     setDataInicio] =
-      useState("");
+    useState("");
 
   const [dataFim,
     setDataFim] =
-      useState("");
+    useState("");
 
   const [projectId,
     setProjectId] =
-      useState("");
+    useState("");
 
-  /*
-  ===================================
-  CONTROLES
-  ===================================
-  */
+  const [teamId,
+    setTeamId] =
+    useState("");
 
   const [loading,
     setLoading] =
-      useState(false);
-
-  const [editingId,
-    setEditingId] =
-      useState<number | null>(
-        null
-      );
+    useState(false);
 
   /*
   ===================================
@@ -114,15 +110,15 @@ function Activities() {
 
   const [busca,
     setBusca] =
-      useState("");
+    useState("");
 
   const [filtroStatus,
     setFiltroStatus] =
-      useState("");
+    useState("");
 
   const [filtroPrioridade,
     setFiltroPrioridade] =
-      useState("");
+    useState("");
 
   /*
   ===================================
@@ -132,11 +128,27 @@ function Activities() {
 
   const [activities,
     setActivities] =
-      useState<Activity[]>([]);
+    useState<Activity[]>([]);
 
   const [projects,
     setProjects] =
-      useState<Project[]>([]);
+    useState<Project[]>([]);
+
+  const [teams,
+    setTeams] =
+    useState<Team[]>([]);
+
+  /*
+  ===================================
+  EDIÇÃO
+  ===================================
+  */
+
+  const [editingId,
+    setEditingId] =
+    useState<number | null>(
+      null
+    );
 
   /*
   ===================================
@@ -198,6 +210,35 @@ function Activities() {
 
   /*
   ===================================
+  CARREGAR EQUIPES
+  ===================================
+  */
+
+  async function carregarEquipes() {
+
+    try {
+
+      const response =
+        await api.get(
+          "/teams"
+        );
+
+      setTeams(
+        response.data
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Erro ao carregar equipes"
+      );
+    }
+  }
+
+  /*
+  ===================================
   INIT
   ===================================
   */
@@ -207,6 +248,8 @@ function Activities() {
     void carregarAtividades();
 
     void carregarProjetos();
+
+    void carregarEquipes();
 
   }, []);
 
@@ -237,6 +280,8 @@ function Activities() {
     setDataFim("");
 
     setProjectId("");
+
+    setTeamId("");
   }
 
   /*
@@ -267,6 +312,7 @@ function Activities() {
           data_inicio: dataInicio,
           data_fim: dataFim,
           project_id: Number(projectId),
+          team_id: Number(teamId),
         }
       );
 
@@ -306,9 +352,13 @@ function Activities() {
       return;
     }
 
-    setEditingId(activity.id);
+    setEditingId(
+      activity.id
+    );
 
-    setTitulo(activity.titulo);
+    setTitulo(
+      activity.titulo
+    );
 
     setDescricao(
       activity.descricao
@@ -343,11 +393,17 @@ function Activities() {
         activity.project_id || ""
       )
     );
+
+    setTeamId(
+      String(
+        activity.team_id || ""
+      )
+    );
   }
 
   /*
   ===================================
-  UPDATE
+  ATUALIZAR
   ===================================
   */
 
@@ -373,6 +429,7 @@ function Activities() {
           data_inicio: dataInicio,
           data_fim: dataFim,
           project_id: Number(projectId),
+          team_id: Number(teamId),
         }
       );
 
@@ -389,7 +446,7 @@ function Activities() {
       console.error(error);
 
       toast.error(
-        "Erro ao atualizar"
+        "Erro ao atualizar atividade"
       );
 
     } finally {
@@ -400,7 +457,7 @@ function Activities() {
 
   /*
   ===================================
-  DELETE
+  DELETAR
   ===================================
   */
 
@@ -431,21 +488,21 @@ function Activities() {
         "Atividade removida"
       );
 
-      await carregarAtividades();
+      void carregarAtividades();
 
     } catch (error) {
 
       console.error(error);
 
       toast.error(
-        "Erro ao excluir"
+        "Erro ao excluir atividade"
       );
     }
   }
 
   /*
   ===================================
-  FILTRO
+  FILTROS
   ===================================
   */
 
@@ -456,7 +513,7 @@ function Activities() {
         const matchBusca =
 
           activity.titulo
-            ?.toLowerCase()
+            .toLowerCase()
             .includes(
               busca.toLowerCase()
             )
@@ -464,7 +521,7 @@ function Activities() {
           ||
 
           activity.responsavel
-            ?.toLowerCase()
+            .toLowerCase()
             .includes(
               busca.toLowerCase()
             )
@@ -472,7 +529,7 @@ function Activities() {
           ||
 
           activity.obra
-            ?.toLowerCase()
+            .toLowerCase()
             .includes(
               busca.toLowerCase()
             );
@@ -507,7 +564,7 @@ function Activities() {
 
   /*
   ===================================
-  UI
+  RENDER
   ===================================
   */
 
@@ -515,22 +572,25 @@ function Activities() {
 
     <div className="p-10">
 
-      <div className="mb-8">
+      <div className="mb-10">
 
         <h1
           className="
             text-4xl
             font-bold
+            text-white
           "
         >
-          Atividades
+          Gestão de Atividades
         </h1>
 
-        <p className="text-gray-500 mt-2">
-          Perfil:
-          <strong className="ml-2">
-            {user?.role}
-          </strong>
+        <p
+          className="
+            text-gray-400
+            mt-2
+          "
+        >
+          Controle operacional das obras
         </p>
 
       </div>
@@ -545,19 +605,33 @@ function Activities() {
                 : criarAtividade
             }
             className="
-              bg-white
-              p-8
+              bg-[#111827]
+              border
+              border-white/10
               rounded-2xl
-              shadow
+              p-8
               mb-10
+              shadow-2xl
             "
           >
 
-            <div className="grid grid-cols-2 gap-6">
+            <div
+              className="
+                grid
+                grid-cols-1
+                md:grid-cols-2
+                gap-6
+              "
+            >
 
               <div>
 
-                <label>
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
                   Título
                 </label>
 
@@ -571,10 +645,13 @@ function Activities() {
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
                 />
 
@@ -582,7 +659,12 @@ function Activities() {
 
               <div>
 
-                <label>
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
                   Responsável
                 </label>
 
@@ -596,10 +678,13 @@ function Activities() {
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
                 />
 
@@ -609,7 +694,12 @@ function Activities() {
 
             <div className="mt-6">
 
-              <label>
+              <label
+                className="
+                  text-gray-300
+                  text-sm
+                "
+              >
                 Descrição
               </label>
 
@@ -620,23 +710,41 @@ function Activities() {
                     e.target.value
                   )
                 }
+                rows={4}
                 className="
                   w-full
-                  border
-                  p-3
-                  rounded-lg
                   mt-2
-                  h-32
+                  bg-[#1F2937]
+                  border
+                  border-white/10
+                  rounded-xl
+                  p-4
+                  text-white
                 "
               />
 
             </div>
 
-            <div className="grid grid-cols-4 gap-6 mt-6">
+            <div
+              className="
+                grid
+                grid-cols-1
+                md:grid-cols-4
+                gap-6
+                mt-6
+              "
+            >
 
               <div>
 
-                <label>Status</label>
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
+                  Status
+                </label>
 
                 <select
                   value={status}
@@ -647,10 +755,13 @@ function Activities() {
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
                 >
 
@@ -672,7 +783,12 @@ function Activities() {
 
               <div>
 
-                <label>
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
                   Prioridade
                 </label>
 
@@ -685,10 +801,13 @@ function Activities() {
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
                 >
 
@@ -710,7 +829,12 @@ function Activities() {
 
               <div>
 
-                <label>
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
                   Obra
                 </label>
 
@@ -723,10 +847,13 @@ function Activities() {
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
                 >
 
@@ -744,6 +871,7 @@ function Activities() {
                         >
                           {project.nome}
                         </option>
+
                       )
                     )
                   }
@@ -754,36 +882,77 @@ function Activities() {
 
               <div>
 
-                <label>
-                  Obra Texto
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
+                  Equipe
                 </label>
 
-                <input
-                  type="text"
-                  value={obra}
+                <select
+                  value={teamId}
                   onChange={(e) =>
-                    setObra(
+                    setTeamId(
                       e.target.value
                     )
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
-                />
+                >
+
+                  <option value="">
+                    Selecione
+                  </option>
+
+                  {
+                    teams.map(
+                      (team) => (
+
+                        <option
+                          key={team.id}
+                          value={team.id}
+                        >
+                          {team.nome}
+                        </option>
+
+                      )
+                    )
+                  }
+
+                </select>
 
               </div>
 
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mt-6">
+            <div
+              className="
+                grid
+                grid-cols-1
+                md:grid-cols-2
+                gap-6
+                mt-6
+              "
+            >
 
               <div>
 
-                <label>
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
                   Data início
                 </label>
 
@@ -797,10 +966,13 @@ function Activities() {
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
                 />
 
@@ -808,7 +980,12 @@ function Activities() {
 
               <div>
 
-                <label>
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
                   Data fim
                 </label>
 
@@ -822,10 +999,13 @@ function Activities() {
                   }
                   className="
                     w-full
-                    border
-                    p-3
-                    rounded-lg
                     mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
                   "
                 />
 
@@ -840,11 +1020,13 @@ function Activities() {
                 disabled={loading}
                 className="
                   bg-blue-600
-                  text-white
-                  px-6
-                  py-3
-                  rounded-lg
                   hover:bg-blue-700
+                  transition-all
+                  text-white
+                  px-8
+                  py-4
+                  rounded-xl
+                  font-semibold
                 "
               >
 
@@ -852,8 +1034,8 @@ function Activities() {
                   loading
                     ? "Salvando..."
                     : editingId
-                    ? "Atualizar"
-                    : "Criar atividade"
+                      ? "Atualizar atividade"
+                      : "Criar atividade"
                 }
 
               </button>
@@ -867,11 +1049,14 @@ function Activities() {
                       limparFormulario
                     }
                     className="
-                      bg-gray-500
+                      bg-gray-600
+                      hover:bg-gray-700
+                      transition-all
                       text-white
-                      px-6
-                      py-3
-                      rounded-lg
+                      px-8
+                      py-4
+                      rounded-xl
+                      font-semibold
                     "
                   >
                     Cancelar
@@ -889,16 +1074,20 @@ function Activities() {
 
       <div
         className="
-          bg-white
+          bg-[#111827]
+          border
+          border-white/10
           rounded-2xl
-          shadow
           p-8
+          shadow-2xl
         "
       >
 
         <div
           className="
             flex
+            flex-col
+            md:flex-row
             gap-4
             mb-8
           "
@@ -906,7 +1095,9 @@ function Activities() {
 
           <input
             type="text"
-            placeholder="Buscar..."
+            placeholder="
+              Buscar atividade
+            "
             value={busca}
             onChange={(e) =>
               setBusca(
@@ -914,10 +1105,13 @@ function Activities() {
               )
             }
             className="
-              border
-              p-3
-              rounded-lg
               flex-1
+              bg-[#1F2937]
+              border
+              border-white/10
+              rounded-xl
+              p-4
+              text-white
             "
           />
 
@@ -929,9 +1123,12 @@ function Activities() {
               )
             }
             className="
+              bg-[#1F2937]
               border
-              p-3
-              rounded-lg
+              border-white/10
+              rounded-xl
+              p-4
+              text-white
             "
           >
 
@@ -961,9 +1158,12 @@ function Activities() {
               )
             }
             className="
+              bg-[#1F2937]
               border
-              p-3
-              rounded-lg
+              border-white/10
+              rounded-xl
+              p-4
+              text-white
             "
           >
 
@@ -987,129 +1187,165 @@ function Activities() {
 
         </div>
 
-        <table className="w-full">
+        <div className="overflow-x-auto">
 
-          <thead>
+          <table className="w-full">
 
-            <tr className="border-b">
+            <thead>
 
-              <th className="text-left py-4">
-                Título
-              </th>
+              <tr
+                className="
+                  border-b
+                  border-white/10
+                  text-gray-400
+                "
+              >
 
-              <th className="text-left py-4">
-                Status
-              </th>
+                <th className="text-left pb-4">
+                  Título
+                </th>
 
-              <th className="text-left py-4">
-                Prioridade
-              </th>
+                <th className="text-left pb-4">
+                  Status
+                </th>
 
-              <th className="text-left py-4">
-                Responsável
-              </th>
+                <th className="text-left pb-4">
+                  Prioridade
+                </th>
 
-              <th className="text-left py-4">
-                Ações
-              </th>
+                <th className="text-left pb-4">
+                  Responsável
+                </th>
 
-            </tr>
+                <th className="text-left pb-4">
+                  Ações
+                </th>
 
-          </thead>
+              </tr>
 
-          <tbody>
+            </thead>
 
-            {
-              filteredActivities.map(
-                (activity) => (
+            <tbody>
 
-                  <tr
-                    key={activity.id}
-                    className="border-b"
-                  >
+              {
+                filteredActivities.map(
+                  (activity) => (
 
-                    <td className="py-4">
-                      {activity.titulo}
-                    </td>
+                    <tr
+                      key={activity.id}
+                      className="
+                        border-b
+                        border-white/5
+                      "
+                    >
 
-                    <td className="py-4">
-                      {activity.status}
-                    </td>
+                      <td
+                        className="
+                          py-5
+                          text-white
+                        "
+                      >
+                        {activity.titulo}
+                      </td>
 
-                    <td className="py-4">
-                      {activity.prioridade}
-                    </td>
+                      <td
+                        className="
+                          py-5
+                          text-gray-300
+                        "
+                      >
+                        {activity.status}
+                      </td>
 
-                    <td className="py-4">
-                      {
-                        activity.responsavel
-                      }
-                    </td>
+                      <td
+                        className="
+                          py-5
+                          text-gray-300
+                        "
+                      >
+                        {activity.prioridade}
+                      </td>
 
-                    <td className="py-4">
+                      <td
+                        className="
+                          py-5
+                          text-gray-300
+                        "
+                      >
+                        {activity.responsavel}
+                      </td>
 
-                      {
-                        podeEditar && (
+                      <td className="py-5">
 
-                          <button
-                            onClick={() =>
-                              editarAtividade(
-                                activity
-                              )
-                            }
-                            className="
-                              bg-yellow-500
-                              text-white
-                              px-4
-                              py-2
-                              rounded-lg
-                              mr-2
-                            "
-                          >
-                            Editar
-                          </button>
+                        {
+                          podeEditar && (
 
-                        )
-                      }
+                            <button
+                              onClick={() =>
+                                editarAtividade(
+                                  activity
+                                )
+                              }
+                              className="
+                                bg-yellow-500
+                                hover:bg-yellow-600
+                                transition-all
+                                text-white
+                                px-4
+                                py-2
+                                rounded-lg
+                                mr-3
+                              "
+                            >
+                              Editar
+                            </button>
 
-                      {
-                        podeExcluir && (
+                          )
+                        }
 
-                          <button
-                            onClick={() =>
-                              deletarAtividade(
-                                activity.id
-                              )
-                            }
-                            className="
-                              bg-red-500
-                              text-white
-                              px-4
-                              py-2
-                              rounded-lg
-                            "
-                          >
-                            Excluir
-                          </button>
+                        {
+                          podeExcluir && (
 
-                        )
-                      }
+                            <button
+                              onClick={() =>
+                                deletarAtividade(
+                                  activity.id
+                                )
+                              }
+                              className="
+                                bg-red-600
+                                hover:bg-red-700
+                                transition-all
+                                text-white
+                                px-4
+                                py-2
+                                rounded-lg
+                              "
+                            >
+                              Excluir
+                            </button>
 
-                    </td>
+                          )
+                        }
 
-                  </tr>
+                      </td>
 
+                    </tr>
+
+                  )
                 )
-              )
-            }
+              }
 
-          </tbody>
+            </tbody>
 
-        </table>
+          </table>
+
+        </div>
 
       </div>
 
     </div>
   );
 }
+
 export default Activities;

@@ -106,6 +106,15 @@ className="
   Obras
 </Link>
 
+          <Link to="/teams"
+className="
+            hover:bg-gray-700
+            p-3
+            rounded
+          ">
+  Equipes
+          </Link>
+
         {/* LOGOUT */}
 
         <button

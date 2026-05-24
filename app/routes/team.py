@@ -7,8 +7,6 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 
 from app.models.team import Team
-from app.models.company import Company
-from app.models.work import Work
 
 from app.schemas.team import (
     TeamCreate,
@@ -16,9 +14,9 @@ from app.schemas.team import (
 )
 
 from app.core.deps import (
+    get_current_user,
     require_admin_or_planner
 )
-
 
 router = APIRouter(
     prefix="/teams",
@@ -28,38 +26,16 @@ router = APIRouter(
 
 """
 ===================================
-LISTAR
+CRIAR EQUIPE
 ===================================
 """
 
-@router.get(
-    "/",
-    response_model=list[
-        TeamResponse
-    ]
-)
-def listar_equipes(
-    db: Session = Depends(get_db)
-):
-
-    equipes = db.query(
-        Team
-    ).all()
-
-    return equipes
-
-
-"""
-===================================
-CRIAR
-===================================
-"""
 
 @router.post(
     "/",
     response_model=TeamResponse
 )
-def criar_equipe(
+def criar_team(
     dados: TeamCreate,
     db: Session = Depends(get_db),
     usuario=Depends(
@@ -67,45 +43,84 @@ def criar_equipe(
     )
 ):
 
-    empresa = db.query(
-        Company
-    ).filter(
-        Company.id == dados.company_id
-    ).first()
-
-    if not empresa:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Empresa não encontrada"
-        )
-
-    obra = db.query(
-        Work
-    ).filter(
-        Work.id == dados.work_id
-    ).first()
-
-    if not obra:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Obra não encontrada"
-        )
-
-    equipe = Team(
+    team = Team(
         nome=dados.nome,
-        company_id=dados.company_id,
-        work_id=dados.work_id
+        tipo=dados.tipo,
+        empresa=dados.empresa
     )
 
-    db.add(equipe)
+    db.add(team)
 
     db.commit()
 
-    db.refresh(equipe)
+    db.refresh(team)
 
-    return equipe
+    return team
+
+
+"""
+===================================
+LISTAR EQUIPES
+===================================
+"""
+
+
+@router.get(
+    "/",
+    response_model=list[TeamResponse]
+)
+def listar_teams(
+    db: Session = Depends(get_db),
+    usuario=Depends(get_current_user)
+):
+
+    teams = db.query(Team).filter(
+        Team.ativo == True
+    ).all()
+
+    return teams
+
+
+"""
+===================================
+ATUALIZAR
+===================================
+"""
+
+
+@router.put(
+    "/{team_id}",
+    response_model=TeamResponse
+)
+def atualizar_team(
+    team_id: int,
+    dados: TeamCreate,
+    db: Session = Depends(get_db),
+    usuario=Depends(
+        require_admin_or_planner
+    )
+):
+
+    team = db.query(Team).filter(
+        Team.id == team_id
+    ).first()
+
+    if not team:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Equipe não encontrada"
+        )
+
+    team.nome = dados.nome
+    team.tipo = dados.tipo
+    team.empresa = dados.empresa
+
+    db.commit()
+
+    db.refresh(team)
+
+    return team
 
 
 """
@@ -114,33 +129,31 @@ DELETAR
 ===================================
 """
 
-@router.delete("/{id}")
-def deletar_equipe(
-    id: int,
+
+@router.delete("/{team_id}")
+def deletar_team(
+    team_id: int,
     db: Session = Depends(get_db),
     usuario=Depends(
         require_admin_or_planner
     )
 ):
 
-    equipe = db.query(
-        Team
-    ).filter(
-        Team.id == id
+    team = db.query(Team).filter(
+        Team.id == team_id
     ).first()
 
-    if not equipe:
+    if not team:
 
         raise HTTPException(
             status_code=404,
             detail="Equipe não encontrada"
         )
 
-    db.delete(equipe)
+    team.ativo = False
 
     db.commit()
 
     return {
-        "message":
-        "Equipe removida"
+        "message": "Equipe removida"
     }

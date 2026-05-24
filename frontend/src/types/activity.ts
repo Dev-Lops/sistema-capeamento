@@ -19,4 +19,8 @@ export type Activity = {
   data_fim?: string;
 
   project_id?: number;
+
+  team_id?: number;
+
+  responsavel_id?: number;
 };

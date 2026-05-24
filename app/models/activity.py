@@ -68,6 +68,16 @@ class Activity(Base):
         back_populates="activities"
     )
 
+    team_id = Column(
+        Integer,
+        ForeignKey("teams.id")
+    )
+
+    responsavel_id = Column(
+        Integer,
+        ForeignKey("users.id")
+    )
+
 class ActivityUpdate(BaseModel):
     titulo: str
 

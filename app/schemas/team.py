@@ -4,10 +4,8 @@ from pydantic import BaseModel
 class TeamBase(BaseModel):
 
     nome: str
-
-    company_id: int
-
-    work_id: int
+    tipo: str
+    empresa: str | None = None
 
 
 class TeamCreate(TeamBase):
@@ -17,7 +15,7 @@ class TeamCreate(TeamBase):
 class TeamResponse(TeamBase):
 
     id: int
+    ativo: bool
 
     class Config:
-
         from_attributes = True
