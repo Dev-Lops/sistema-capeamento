@@ -1,6 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Sidebar() {
+
+  const navigate = useNavigate();
+
+
+  /*
+  ==========================
+  LOGOUT
+  ==========================
+  */
+
+  function logout() {
+
+    localStorage.removeItem(
+      "token"
+    );
+
+    navigate("/login");
+  }
 
   return (
 
@@ -21,7 +39,7 @@ function Sidebar() {
           mb-10
         "
       >
-        Gerenciador de atividades
+        Capeamento
       </h1>
 
       <nav
@@ -53,6 +71,23 @@ function Sidebar() {
         >
           Atividades
         </Link>
+
+
+        {/* LOGOUT */}
+
+        <button
+          onClick={logout}
+          className="
+            bg-red-600
+            hover:bg-red-700
+            p-3
+            rounded
+            text-left
+            mt-10
+          "
+        >
+          Sair
+        </button>
 
       </nav>
 

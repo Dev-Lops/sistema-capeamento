@@ -11,38 +11,70 @@ import Dashboard from "./pages/Dashboard";
 
 import Activities from "./pages/Activities";
 
+import Login from "./pages/Login";
+
+import ProtectedRoute
+  from "./components/ProtectedRoute";
+
+
 function App() {
 
   return (
 
     <BrowserRouter>
 
-      <Layout>
+      <Routes>
 
-        <Routes>
+        {/* LOGIN */}
 
-          <Route
-            path="/"
-            element={
-              <Navigate
-                to="/dashboard"
-              />
-            }
-          />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-          <Route
-            path="/dashboard"
-            element={<Dashboard />}
-          />
 
-          <Route
-            path="/activities"
-            element={<Activities />}
-          />
+        {/* DASHBOARD */}
 
-        </Routes>
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
 
-      </Layout>
+              <Layout>
+                <Dashboard />
+              </Layout>
+
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* ACTIVITIES */}
+
+        <Route
+          path="/activities"
+          element={
+            <ProtectedRoute>
+
+              <Layout>
+                <Activities />
+              </Layout>
+
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* REDIRECT */}
+
+        <Route
+          path="*"
+          element={
+            <Navigate to="/login" />
+          }
+        />
+
+      </Routes>
 
     </BrowserRouter>
   );
