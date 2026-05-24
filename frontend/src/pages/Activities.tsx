@@ -1,7 +1,11 @@
 import {
   useEffect,
-  useState
+  useState,
+  type FormEvent
 } from "react";
+
+import toast
+from "react-hot-toast";
 
 import api from "../services/api";
 
@@ -46,6 +50,10 @@ function Activities() {
   const [dataFim,
     setDataFim] =
       useState("");
+
+  const [loading,
+  setLoading] =
+    useState(false);
 
 
   /*
@@ -108,7 +116,7 @@ function Activities() {
 
   useEffect(() => {
 
-    carregarAtividades();
+    void carregarAtividades();
 
   }, []);
 
@@ -148,44 +156,50 @@ function Activities() {
   */
 
   async function criarAtividade(
-    event: React.FormEvent
-  ) {
+  event: FormEvent
+) {
 
-    event.preventDefault();
+  event.preventDefault();
 
-    try {
+  try {
 
-      await api.post(
-        "/activities",
-        {
-          titulo,
-          descricao,
-          status,
-          prioridade,
-          responsavel,
-          obra,
-          data_inicio: dataInicio,
-          data_fim: dataFim,
-        }
-      );
+    setLoading(true);
 
-      alert("Atividade criada");
+    await api.post(
+      "/activities",
+      {
+        titulo,
+        descricao,
+        status,
+        prioridade,
+        responsavel,
+        obra,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+      }
+    );
 
-      limparFormulario();
+    toast.success(
+      "Atividade criada"
+    );
 
-      carregarAtividades();
+    limparFormulario();
 
-    } catch (error: any) {
+    await carregarAtividades();
 
-      console.log(
-        error.response?.data
-      );
+  } catch (error) {
 
-      alert(
-        "Erro ao criar atividade"
-      );
-    }
+    console.error(error);
+
+    toast.error(
+      "Erro ao criar atividade"
+    );
+
+  } finally {
+
+    setLoading(false);
   }
+}
 
 
   /*
@@ -235,45 +249,51 @@ function Activities() {
   ===================================
   */
 
-  async function atualizarAtividade(
-    event: React.FormEvent
-  ) {
+ async function atualizarAtividade(
+  event: FormEvent
+) {
 
-    event.preventDefault();
+  event.preventDefault();
 
-    try {
+  try {
 
-      await api.put(
-        `/activities/${editingId}`,
-        {
-          titulo,
-          descricao,
-          status,
-          prioridade,
-          responsavel,
-          obra,
-          data_inicio: dataInicio,
-          data_fim: dataFim,
-        }
-      );
+    setLoading(true);
 
-      alert(
-        "Atividade atualizada"
-      );
+    await api.put(
+      `/activities/${editingId}`,
+      {
+        titulo,
+        descricao,
+        status,
+        prioridade,
+        responsavel,
+        obra,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+      }
+    );
 
-      limparFormulario();
+    toast.success(
+      "Atividade atualizada"
+    );
 
-      carregarAtividades();
+    limparFormulario();
 
-    } catch (error) {
+    await carregarAtividades();
 
-      console.error(error);
+  } catch (error) {
 
-      alert(
-        "Erro ao atualizar"
-      );
-    }
+    console.error(error);
+
+    toast.error(
+      "Erro ao atualizar"
+    );
+
+  } finally {
+
+    setLoading(false);
   }
+}
 
 
   /*
@@ -300,14 +320,17 @@ function Activities() {
       await api.delete(
         `/activities/${id}`
       );
+      toast.success(
+  "Atividade removida"
+);
 
-      carregarAtividades();
+      void carregarAtividades();
 
     } catch (error) {
 
-      console.error(error);
-
-      alert("Erro ao excluir");
+      toast.error(
+  "Erro ao excluir"
+);
     }
   }
 
@@ -585,6 +608,7 @@ function Activities() {
 
         <button
           type="submit"
+          disabled={loading}
           className="
             bg-blue-600
             text-white
@@ -592,14 +616,17 @@ function Activities() {
             py-3
             rounded
             hover:bg-blue-700
+            disabled:opacity-50
           "
         >
 
           {
-            editingId
-              ? "Atualizar atividade"
-              : "Criar atividade"
-          }
+  loading
+    ? "Salvando..."
+    : editingId
+      ? "Atualizar atividade"
+      : "Criar atividade"
+}
 
         </button>
 
