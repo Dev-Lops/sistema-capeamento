@@ -1,16 +1,15 @@
 import {
   useEffect,
   useState,
-  type FormEvent
 } from "react";
 
-import toast
-from "react-hot-toast";
+import type {FormEvent,} from "react";
+
+import toast from "react-hot-toast";
 
 import api from "../services/api";
 
-import type { Activity }
-from "../types/activity";
+import type { Activity } from "../types/activity";
 
 
 function Activities() {
@@ -156,7 +155,7 @@ function Activities() {
   */
 
   async function criarAtividade(
-  event: FormEvent
+  event: FormEvent<HTMLFormElement>
 ) {
 
   event.preventDefault();
@@ -250,7 +249,7 @@ function Activities() {
   */
 
  async function atualizarAtividade(
-  event: FormEvent
+  event: FormEvent<HTMLFormElement>
 ) {
 
   event.preventDefault();
