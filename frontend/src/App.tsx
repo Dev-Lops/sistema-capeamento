@@ -14,6 +14,7 @@ import Activities from "./pages/Activities";
 import Login from "./pages/Login";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import Works from "./pages/Works.tsx";
 
 
 function App() {
@@ -69,6 +70,21 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+          <Route
+  path="/works"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "admin",
+        "planner"
+      ]}
+    >
+      <Works />
+    </ProtectedRoute>
+  }
+/>
+
 
 
         {/* REDIRECT */}
