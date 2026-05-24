@@ -56,19 +56,20 @@ async function handleLogin(
     ============================
     */
 
-    const me =
-      await api.get("/auth/me");
+    const meResponse =
+      await api.get("/auth/me", {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+    },
+  });
 
-    /*
-    ============================
-    SALVAR USUÁRIO
-    ============================
-    */
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(me.data)
-    );
+localStorage.setItem(
+  "user",
+  JSON.stringify(
+    meResponse.data
+  )
+);
 
     /*
     ============================

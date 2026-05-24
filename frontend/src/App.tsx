@@ -13,8 +13,7 @@ import Activities from "./pages/Activities";
 
 import Login from "./pages/Login";
 
-import ProtectedRoute
-from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 function App() {
@@ -38,12 +37,16 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
-
+            <ProtectedRoute
+              allowedRoles={[
+                "admin",
+                "planner",
+                "operador",
+              ]}
+            >
               <Layout>
                 <Dashboard />
               </Layout>
-
             </ProtectedRoute>
           }
         />
@@ -54,20 +57,16 @@ function App() {
         <Route
           path="/activities"
           element={
-
             <ProtectedRoute
               allowedRoles={[
                 "admin",
-                "gestor"
+                "planner",
               ]}
             >
-
               <Layout>
                 <Activities />
               </Layout>
-
             </ProtectedRoute>
-
           }
         />
 
