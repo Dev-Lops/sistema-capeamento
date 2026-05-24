@@ -75,7 +75,7 @@ class Activity(Base):
 
     responsavel_id = Column(
         Integer,
-        ForeignKey("users.id")
+        ForeignKey("user.id")
     )
 
 class ActivityUpdate(BaseModel):
