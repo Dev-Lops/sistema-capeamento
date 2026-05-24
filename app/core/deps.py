@@ -56,3 +56,55 @@ def get_current_user(
         raise credentials_exception
 
     return usuario
+
+
+"""
+===================================
+PERMISSÕES
+===================================
+"""
+
+
+def require_admin(
+    usuario: User = Depends(get_current_user)
+):
+
+    if usuario.role != "admin":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Sem permissão"
+        )
+
+    return usuario
+
+
+def require_planner(
+    usuario: User = Depends(get_current_user)
+):
+
+    if usuario.role != "planner":
+
+        raise HTTPException(
+            status_code=403,
+            detail="Sem permissão"
+        )
+
+    return usuario
+
+
+def require_admin_or_planner(
+    usuario: User = Depends(get_current_user)
+):
+
+    if usuario.role not in [
+        "admin",
+        "planner"
+    ]:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Sem permissão"
+        )
+
+    return usuario
