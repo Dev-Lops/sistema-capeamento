@@ -17,4 +17,6 @@ export type Activity = {
   data_inicio?: string;
 
   data_fim?: string;
+
+  project_id?: number;
 };

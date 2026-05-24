@@ -13,7 +13,7 @@ ReactDOM.createRoot(
 <AuthProvider>
   <Toaster />
 
-  <App />
+  <App /> 
 
 </AuthProvider>
 

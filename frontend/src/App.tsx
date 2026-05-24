@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Works from "./pages/Works.tsx";
 import Companies from "./pages/Companies.tsx";
 import Teams from "./pages/Teams.tsx";
+import Projects from "./pages/Projects.tsx";
 
 
 function App() {
@@ -111,6 +112,20 @@ function App() {
       ]}
     >
       <Teams />
+    </ProtectedRoute>
+  }
+/>
+
+          <Route
+  path="/projects"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "admin",
+        "planner"
+      ]}
+    >
+      <Projects />
     </ProtectedRoute>
   }
 />
