@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.obra import router as obra_router
 from app.routes.work import router as work_router
 from app.routes.company import (router as company_router)
+from app.routes.team import (router as team_router)
 app = FastAPI(
     title="Sistema de Planejamento de Capeamento"
 )
@@ -30,6 +31,7 @@ app.include_router(dashboard_router)
 app.include_router(obra_router)
 app.include_router(work_router)
 app.include_router(company_router)
+app.include_router(team_router)
 
 
 @app.get("/")
