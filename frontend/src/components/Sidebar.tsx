@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
+import {useAuth} from "../context/AuthContext.tsx";
 
 function Sidebar() {
 
   const navigate = useNavigate();
-
+const {
+  user,
+} = useAuth();
 
   /*
   ==========================
@@ -31,6 +34,29 @@ function Sidebar() {
         p-6
       "
     >
+        <div
+  className="
+    mb-10
+    border-b
+    border-gray-700
+    pb-4
+  "
+>
+
+  <p className="font-bold">
+    {user?.nome}
+  </p>
+
+  <p
+    className="
+      text-sm
+      text-gray-400
+    "
+  >
+    {user?.role}
+  </p>
+
+</div>
 
       <h1
         className="
@@ -39,7 +65,7 @@ function Sidebar() {
           mb-10
         "
       >
-        Capeamento
+        Gerenciador
       </h1>
 
       <nav
@@ -88,6 +114,7 @@ function Sidebar() {
         >
           Sair
         </button>
+
 
       </nav>
 
