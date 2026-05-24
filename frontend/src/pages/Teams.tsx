@@ -3,167 +3,152 @@ import {
   useState,
 } from "react";
 
+import type {
+  FormEvent,
+} from "react";
+
 import api from "../services/api";
 
 import toast from "react-hot-toast";
-
-
-type Team = {
-
-  id: number;
-
-  nome: string;
-
-  company_id: number;
-
-  work_id: number;
-};
-
-
-type Company = {
-
-  id: number;
-
-  nome: string;
-};
-
-
-type Work = {
-
-  id: number;
-
-  nome: string;
-};
+import type {Team} from "../types/team.ts";
+import type {Company} from "../types/company.ts";
 
 
 function Teams() {
 
-  const [nome, setNome] =
-    useState("");
+  /*
+  ===================================
+  ESTADOS
+  ===================================
+  */
 
-  const [companyId,
-    setCompanyId] =
+  const [nome,
+    setNome] =
       useState("");
 
-  const [workId,
-    setWorkId] =
-      useState("");
+  const [tipo,
+    setTipo] =
+      useState("propria");
 
   const [teams,
     setTeams] =
       useState<Team[]>([]);
 
-  const [companies,
-    setCompanies] =
-      useState<Company[]>([]);
+  const [loading,
+    setLoading] =
+      useState(false);
 
-  const [works,
-    setWorks] =
-      useState<Work[]>([]);
+  const [companyId, setCompanyId] = useState<number | "">("");
+const [companies, setCompanies] = useState<Company[]>([]);
 
 
   /*
-  ================================
-  CARREGAR DADOS
-  ================================
+  ===================================
+  CARREGAR EQUIPES
+  ===================================
   */
 
-  async function carregarDados() {
+  async function carregarEquipes() {
 
     try {
 
-      const [
-        teamsResponse,
-        companiesResponse,
-        worksResponse,
-      ] = await Promise.all([
-
-        api.get("/teams"),
-
-        api.get("/companies"),
-
-        api.get("/works"),
-      ]);
+      const response =
+        await api.get("/teams/");
 
       setTeams(
-        teamsResponse.data
+        response.data
       );
-
-      setCompanies(
-        companiesResponse.data
-      );
-
-      setWorks(
-        worksResponse.data
-      );
-
-    } catch (error) {
-
-      console.error(error);
-    }
-  }
-
-
-  useEffect(() => {
-
-    void carregarDados();
-
-  }, []);
-
-
-  /*
-  ================================
-  CRIAR
-  ================================
-  */
-
-  async function criarEquipe() {
-
-    try {
-
-      await api.post("/teams", {
-
-        nome,
-
-        company_id:
-          Number(companyId),
-
-        work_id:
-          Number(workId),
-      });
-
-      toast.success(
-        "Equipe criada"
-      );
-
-      setNome("");
-
-      setCompanyId("");
-
-      setWorkId("");
-
-      await carregarDados();
 
     } catch (error) {
 
       console.error(error);
 
       toast.error(
-        "Erro ao criar equipe"
+        "Erro ao carregar equipes"
       );
     }
   }
 
+  async function carregarEmpresas() {
+  try {
+    const response = await api.get("/companies/");
+    setCompanies(response.data);
+  } catch (error) {
+    console.error(error);
+    toast.error("Erro ao carregar empresas");
+  }
+}
+
 
   /*
-  ================================
-  DELETAR
-  ================================
+  ===================================
+  EXECUTA AO ABRIR
+  ===================================
+  */
+
+  useEffect(() => {
+  void carregarEquipes();
+  void carregarEmpresas();
+}, []);
+
+
+  /*
+  ===================================
+  CRIAR EQUIPE
+  ===================================
+  */
+
+ async function criarEquipe(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
+  if (!companyId) {
+    toast.error("Selecione uma empresa");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    await api.post("/teams/", {
+      nome,
+      tipo,
+      company_id: Number(companyId),
+    });
+
+    toast.success("Equipe criada");
+
+    setNome("");
+    setTipo("propria");
+    setCompanyId("");
+
+    await carregarEquipes();
+  } catch (error) {
+    console.error(error);
+    toast.error("Erro ao criar equipe");
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+  /*
+  ===================================
+  DELETAR EQUIPE
+  ===================================
   */
 
   async function deletarEquipe(
     id: number
   ) {
+
+    const confirmar =
+      confirm(
+        "Deseja remover equipe?"
+      );
+
+    if (!confirmar) {
+      return;
+    }
 
     try {
 
@@ -175,18 +160,24 @@ function Teams() {
         "Equipe removida"
       );
 
-      await carregarDados();
+      await carregarEquipes();
 
     } catch (error) {
 
       console.error(error);
 
       toast.error(
-        "Erro ao remover"
+        "Erro ao remover equipe"
       );
     }
   }
 
+
+  /*
+  ===================================
+  INTERFACE
+  ===================================
+  */
 
   return (
 
@@ -203,7 +194,10 @@ function Teams() {
       </h1>
 
 
-      <div
+      {/* FORMULÁRIO */}
+
+      <form
+        onSubmit={criarEquipe}
         className="
           bg-white
           p-8
@@ -214,110 +208,129 @@ function Teams() {
         "
       >
 
-        <input
-          type="text"
-          placeholder="Nome da equipe"
-          value={nome}
-          onChange={(e) =>
-            setNome(
-              e.target.value
-            )
-          }
-          className="
-            w-full
-            border
-            p-3
-            rounded
-            mb-4
-          "
-        />
+        {/* NOME */}
+
+        <div className="mb-4">
+
+          <label>
+            Nome da equipe
+          </label>
+
+          <input
+            type="text"
+            value={nome}
+            onChange={(e) =>
+              setNome(
+                e.target.value
+              )
+            }
+            className="
+              w-full
+              border
+              p-3
+              rounded
+              mt-2
+            "
+            required
+          />
+
+        </div>
 
 
-        <select
-          value={companyId}
-          onChange={(e) =>
-            setCompanyId(
-              e.target.value
-            )
-          }
-          className="
-            w-full
-            border
-            p-3
-            rounded
-            mb-4
-          "
-        >
+        {/* TIPO */}
 
-          <option value="">
-            Selecione empresa
-          </option>
+        <div className="mb-4">
 
-          {companies.map(
-            (company) => (
+          <label>
+            Tipo
+          </label>
 
-            <option
-              key={company.id}
-              value={company.id}
-            >
-              {company.nome}
+          <select
+            value={tipo}
+            onChange={(e) =>
+              setTipo(
+                e.target.value
+              )
+            }
+            className="
+              w-full
+              border
+              p-3
+              rounded
+              mt-2
+            "
+          >
+
+            <option value="propria">
+              Própria
             </option>
 
-          ))}
-
-        </select>
-
-
-        <select
-          value={workId}
-          onChange={(e) =>
-            setWorkId(
-              e.target.value
-            )
-          }
-          className="
-            w-full
-            border
-            p-3
-            rounded
-            mb-4
-          "
-        >
-
-          <option value="">
-            Selecione obra
-          </option>
-
-          {works.map(
-            (work) => (
-
-            <option
-              key={work.id}
-              value={work.id}
-            >
-              {work.nome}
+            <option value="terceirizada">
+              Terceirizada
             </option>
 
-          ))}
+          </select>
 
-        </select>
+        </div>
 
+
+        {/* EMPRESA */}
+
+        <div className="mb-6">
+
+          <label>
+            Empresa
+          </label>
+          <select
+  value={companyId}
+  onChange={(e) =>
+    setCompanyId(
+      e.target.value === "" ? "" : Number(e.target.value)
+    )
+  }
+  className="w-full border p-3 rounded mt-2"
+>
+  <option value="">Selecione empresa</option>
+
+  {companies.map((company) => (
+    <option key={company.id} value={company.id}>
+      {company.nome}
+    </option>
+  ))}
+</select>
+
+
+        </div>
+
+
+        {/* BOTÃO */}
 
         <button
-          onClick={criarEquipe}
+          type="submit"
+          disabled={loading}
           className="
             bg-blue-600
             text-white
             px-6
             py-3
             rounded
+            hover:bg-blue-700
+            disabled:opacity-50
           "
         >
-          Criar equipe
+
+          {
+            loading
+              ? "Salvando..."
+              : "Criar equipe"
+          }
+
         </button>
 
-      </div>
+      </form>
 
+
+      {/* TABELA */}
 
       <div
         className="
@@ -327,6 +340,16 @@ function Teams() {
           shadow
         "
       >
+
+        <h2
+          className="
+            text-2xl
+            font-bold
+            mb-6
+          "
+        >
+          Lista de equipes
+        </h2>
 
         <table className="w-full">
 
@@ -339,11 +362,15 @@ function Teams() {
               </th>
 
               <th className="text-left pb-4">
+                Tipo
+              </th>
+
+              <th className="text-left pb-4">
                 Empresa
               </th>
 
               <th className="text-left pb-4">
-                Obra
+                Status
               </th>
 
               <th className="text-left pb-4">
@@ -356,66 +383,58 @@ function Teams() {
 
           <tbody>
 
-            {teams.map((team) => {
+            {teams.map((team) => (
 
-              const company =
-                companies.find(
-                  (c) =>
-                    c.id ===
-                    team.company_id
-                );
+              <tr
+                key={team.id}
+                className="border-b"
+              >
 
-              const work =
-                works.find(
-                  (w) =>
-                    w.id ===
-                    team.work_id
-                );
+                <td className="py-4">
+                  {team.nome}
+                </td>
 
-              return (
+                <td className="py-4">
+                  {team.tipo}
+                </td>
 
-                <tr
-                  key={team.id}
-                  className="border-b"
-                >
+                <td className="py-4">
+{team.company?.nome || "-"}                </td>
 
-                  <td className="py-4">
-                    {team.nome}
-                  </td>
+                <td className="py-4">
 
-                  <td className="py-4">
-                    {company?.nome}
-                  </td>
+                  {
+                    team.ativo
+                      ? "Ativa"
+                      : "Inativa"
+                  }
 
-                  <td className="py-4">
-                    {work?.nome}
-                  </td>
+                </td>
 
-                  <td className="py-4">
+                <td className="py-4">
 
-                    <button
-                      onClick={() =>
-                        deletarEquipe(
-                          team.id
-                        )
-                      }
-                      className="
-                        bg-red-500
-                        text-white
-                        px-4
-                        py-2
-                        rounded
-                      "
-                    >
-                      Excluir
-                    </button>
+                  <button
+                    onClick={() =>
+                      deletarEquipe(
+                        team.id
+                      )
+                    }
+                    className="
+                      bg-red-500
+                      text-white
+                      px-4
+                      py-2
+                      rounded
+                    "
+                  >
+                    Excluir
+                  </button>
 
-                  </td>
+                </td>
 
-                </tr>
+              </tr>
 
-              );
-            })}
+            ))}
 
           </tbody>
 

@@ -1,9 +1,12 @@
-from sqlalchemy import Column
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Boolean
 
 from app.db import Base
+
+
+from sqlalchemy.orm import relationship
 
 
 class Team(Base):
@@ -27,12 +30,15 @@ class Team(Base):
     )
     # propria | terceirizada
 
-    empresa = Column(
-        String,
-        nullable=True
+    company_id = Column(
+        Integer,
+        ForeignKey("companies.id"),
+        nullable=False
     )
 
     ativo = Column(
         Boolean,
         default=True
     )
+
+    company = relationship("Company", lazy="joined")

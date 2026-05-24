@@ -18,6 +18,8 @@ from app.core.deps import (
     require_admin_or_planner
 )
 
+from sqlalchemy.orm import Session, joinedload
+
 router = APIRouter(
     prefix="/teams",
     tags=["Teams"]
@@ -31,28 +33,20 @@ CRIAR EQUIPE
 """
 
 
-@router.post(
-    "/",
-    response_model=TeamResponse
-)
+@router.post("/", response_model=TeamResponse)
 def criar_team(
     dados: TeamCreate,
     db: Session = Depends(get_db),
-    usuario=Depends(
-        require_admin_or_planner
-    )
+    usuario=Depends(require_admin_or_planner)
 ):
-
     team = Team(
         nome=dados.nome,
         tipo=dados.tipo,
-        empresa=dados.empresa
+        company_id=dados.company_id,  # ✅ CORRETO
     )
 
     db.add(team)
-
     db.commit()
-
     db.refresh(team)
 
     return team
@@ -65,18 +59,13 @@ LISTAR EQUIPES
 """
 
 
-@router.get(
-    "/",
-    response_model=list[TeamResponse]
-)
+@router.get("/", response_model=list[TeamResponse])
 def listar_teams(
     db: Session = Depends(get_db),
     usuario=Depends(get_current_user)
 ):
 
-    teams = db.query(Team).filter(
-        Team.ativo == True
-    ).all()
+    teams = db.query(Team).filter(Team.ativo == True).all()
 
     return teams
 
@@ -114,7 +103,7 @@ def atualizar_team(
 
     team.nome = dados.nome
     team.tipo = dados.tipo
-    team.empresa = dados.empresa
+    team.company_id = dados.company_id  # ✅ CORRETO
 
     db.commit()
 
