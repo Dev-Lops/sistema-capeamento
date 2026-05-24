@@ -1,15 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { Plus } from "lucide-react";
 
 import api from "../services/api";
 import toast from "react-hot-toast";
-
 import type { Obra } from "../types/obra";
 
-function Obras() {
+import PageHeader from "../components/ui/PageHeader";
+import StatusBadge from "../components/ui/StatusBadge";
+import EmptyState from "../components/ui/EmptyState";
+
+export default function Obras() {
   const [nome, setNome] = useState("");
   const [cliente, setCliente] = useState("");
   const [local, setLocal] = useState("");
   const [obras, setObras] = useState<Obra[]>([]);
+  const [loading, setLoading] = useState(false);
 
   async function carregarObras() {
     try {
@@ -25,13 +30,16 @@ function Obras() {
     void carregarObras();
   }, []);
 
-  async function criarObra() {
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+
     if (!nome.trim() || !cliente.trim() || !local.trim()) {
       toast.error("Preencha nome, cliente e local");
       return;
     }
 
     try {
+      setLoading(true);
       await api.post("/obras", {
         nome,
         cliente,
@@ -47,13 +55,13 @@ function Obras() {
     } catch (error) {
       console.error(error);
       toast.error("Erro ao criar obra");
+    } finally {
+      setLoading(false);
     }
   }
 
   async function deletarObra(id: number) {
-    if (!confirm("Deseja remover esta obra?")) {
-      return;
-    }
+    if (!confirm("Deseja remover esta obra?")) return;
 
     try {
       await api.delete(`/obras/${id}`);
@@ -66,75 +74,98 @@ function Obras() {
   }
 
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-8">Obras</h1>
+    <div className="page-shell">
+      <PageHeader
+        title="Obras"
+        description="Cadastro de unidades e locais de capeamento"
+      />
 
-      <div className="bg-white p-8 rounded-xl shadow mb-10 max-w-2xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <input
-            type="text"
-            placeholder="Nome da obra"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            className="w-full border p-3 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Cliente"
-            value={cliente}
-            onChange={(e) => setCliente(e.target.value)}
-            className="w-full border p-3 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Local"
-            value={local}
-            onChange={(e) => setLocal(e.target.value)}
-            className="w-full border p-3 rounded"
-          />
+      <form onSubmit={handleSubmit} className="card card-body mb-8 max-w-3xl">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Nova obra
+        </h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <label className="label-field">Nome</label>
+            <input
+              type="text"
+              placeholder="Ex: UTE GNA II"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="label-field">Cliente</label>
+            <input
+              type="text"
+              placeholder="Cliente"
+              value={cliente}
+              onChange={(e) => setCliente(e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="label-field">Local</label>
+            <input
+              type="text"
+              placeholder="Cidade — UF"
+              value={local}
+              onChange={(e) => setLocal(e.target.value)}
+              className="input-field"
+            />
+          </div>
         </div>
-
-        <button
-          onClick={criarObra}
-          className="bg-blue-600 text-white px-6 py-3 rounded"
-        >
-          Criar obra
+        <button type="submit" disabled={loading} className="btn-primary mt-6">
+          <Plus className="h-4 w-4" />
+          {loading ? "Salvando..." : "Criar obra"}
         </button>
-      </div>
+      </form>
 
-      <div className="bg-white p-8 rounded-xl shadow overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left pb-4">Nome</th>
-              <th className="text-left pb-4">Cliente</th>
-              <th className="text-left pb-4">Local</th>
-              <th className="text-left pb-4">Status</th>
-              <th className="text-left pb-4">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {obras.map((obra) => (
-              <tr key={obra.id} className="border-b">
-                <td className="py-4">{obra.nome}</td>
-                <td className="py-4">{obra.cliente}</td>
-                <td className="py-4">{obra.local}</td>
-                <td className="py-4">{obra.status}</td>
-                <td className="py-4">
-                  <button
-                    onClick={() => deletarObra(obra.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
-                  >
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="card card-body">
+        <h2 className="mb-6 text-lg font-semibold text-slate-900">
+          Obras cadastradas
+        </h2>
+
+        {obras.length === 0 ? (
+          <EmptyState title="Nenhuma obra cadastrada" />
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Cliente</th>
+                  <th>Local</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {obras.map((obra) => (
+                  <tr key={obra.id}>
+                    <td className="font-medium text-slate-900">{obra.nome}</td>
+                    <td>{obra.cliente}</td>
+                    <td>{obra.local}</td>
+                    <td>
+                      <StatusBadge value={obra.status} />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => deletarObra(obra.id)}
+                        className="btn-danger !px-3 !py-1.5 text-xs"
+                      >
+                        Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-export default Obras;

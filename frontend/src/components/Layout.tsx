@@ -1,59 +1,21 @@
-import type {
-  ReactNode
-} from "react";
+import type { ReactNode } from "react";
 
-import Sidebar
-from "./Sidebar";
-
+import Sidebar from "./Sidebar";
 
 type Props = {
   children: ReactNode;
 };
 
-
-function Layout({
-  children
-}: Props) {
-
+export default function Layout({ children }: Props) {
   return (
-
-    <div className="flex">
-
-      {/* SIDEBAR FIXA */}
-
-      <div
-        className="
-          fixed
-          left-0
-          top-0
-          w-64
-          h-screen
-        "
-      >
-
+    <div className="flex min-h-screen bg-slate-50">
+      <aside className="fixed inset-y-0 left-0 z-30 w-64">
         <Sidebar />
+      </aside>
 
-      </div>
-
-
-      {/* CONTEÚDO */}
-
-      <main
-        className="
-          ml-64
-          flex-1
-          h-screen
-          overflow-y-auto
-          bg-gray-100
-        "
-      >
-
-        {children}
-
+      <main className="ml-64 min-h-screen flex-1">
+        <div className="min-h-screen">{children}</div>
       </main>
-
     </div>
   );
 }
-
-export default Layout;

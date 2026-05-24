@@ -1,8 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useEffect, useState } from "react";
 import {
   Activity,
   CheckCircle2,
@@ -11,241 +7,118 @@ import {
 } from "lucide-react";
 
 import api from "../services/api";
-
 import type { Activity as ActivityType } from "../types/activity";
 import type { DashboardData } from "../types/dashboard";
 
 import KPICard from "../components/dashboard/KPICard";
+import PageHeader from "../components/ui/PageHeader";
+import LoadingPage from "../components/ui/LoadingPage";
+import EmptyState from "../components/ui/EmptyState";
+import StatusBadge from "../components/ui/StatusBadge";
 
-
-function Dashboard() {
-
+export default function Dashboard() {
   const [stats, setStats] = useState<DashboardData | null>(null);
   const [activities, setActivities] = useState<ActivityType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     async function carregarDados() {
-
       try {
-
-        const response =
-          await api.get<DashboardData>(
-            "/dashboard"
-          );
-
+        const response = await api.get<DashboardData>("/dashboard");
         setStats(response.data);
-
-        setActivities(
-          response.data.atividades_recentes ?? []
-        );
-
+        setActivities(response.data.atividades_recentes ?? []);
       } catch (error) {
-
         console.error(error);
-
       } finally {
-
         setLoading(false);
       }
     }
 
     void carregarDados();
-
   }, []);
 
-
   if (loading) {
-
-    return (
-
-      <div
-        className="
-          min-h-screen
-          bg-[#0f172a]
-          flex
-          items-center
-          justify-center
-          text-white
-        "
-      >
-        Carregando dashboard...
-      </div>
-
-    );
+    return <LoadingPage message="Carregando dashboard..." />;
   }
 
-  const total = stats?.total_atividades ?? 0;
-  const planejadas = stats?.planejadas ?? 0;
-  const emExecucao = stats?.em_execucao ?? 0;
-  const concluidas = stats?.concluidas ?? 0;
-  const atrasadas = stats?.atrasadas ?? 0;
-
   return (
+    <div className="page-shell">
+      <PageHeader
+        title="Dashboard operacional"
+        description="Visão geral das atividades de capeamento"
+      />
 
-    <div className="p-10">
-
-      <div className="mb-10">
-
-        <h1 className="text-4xl font-bold text-white">
-          Dashboard Operacional
-        </h1>
-
-        <p className="text-gray-400 mt-2">
-          Visão geral das atividades de capeamento
-        </p>
-
-      </div>
-
-
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          xl:grid-cols-5
-          gap-6
-          mb-10
-        "
-      >
-
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KPICard
           title="Total"
-          value={total}
-          icon={<Activity />}
+          value={stats?.total_atividades ?? 0}
+          icon={<Activity className="h-6 w-6" />}
           subtitle="Atividades ativas"
-          glow="hover:shadow-blue-500/20"
+          accent="blue"
         />
-
         <KPICard
           title="Planejadas"
-          value={planejadas}
-          icon={<Clock3 />}
+          value={stats?.planejadas ?? 0}
+          icon={<Clock3 className="h-6 w-6" />}
           subtitle="Aguardando início"
-          glow="hover:shadow-yellow-500/20"
+          accent="amber"
         />
-
         <KPICard
           title="Em execução"
-          value={emExecucao}
-          icon={<Activity />}
+          value={stats?.em_execucao ?? 0}
+          icon={<Activity className="h-6 w-6" />}
           subtitle="Em andamento"
-          glow="hover:shadow-cyan-500/20"
+          accent="cyan"
         />
-
         <KPICard
           title="Concluídas"
-          value={concluidas}
-          icon={<CheckCircle2 />}
+          value={stats?.concluidas ?? 0}
+          icon={<CheckCircle2 className="h-6 w-6" />}
           subtitle="Finalizadas"
-          glow="hover:shadow-green-500/20"
+          accent="green"
         />
-
         <KPICard
           title="Atrasadas"
-          value={atrasadas}
-          icon={<AlertTriangle />}
+          value={stats?.atrasadas ?? 0}
+          icon={<AlertTriangle className="h-6 w-6" />}
           subtitle="Fora do prazo"
-          glow="hover:shadow-red-500/20"
+          accent="red"
         />
-
       </div>
 
-
-      <div
-        className="
-          bg-[#111827]
-          border
-          border-white/10
-          rounded-2xl
-          p-8
-        "
-      >
-
-        <h2
-          className="
-            text-2xl
-            font-bold
-            text-white
-            mb-6
-          "
-        >
+      <div className="card card-body">
+        <h2 className="mb-6 text-lg font-semibold text-slate-900">
           Atividades recentes
         </h2>
 
-
-        {
-          activities.length === 0 ? (
-
-            <p className="text-gray-400">
-              Nenhuma atividade cadastrada.
-            </p>
-
-          ) : (
-
-            <div className="space-y-4">
-
-              {
-                activities.map((activity) => (
-
-                  <div
-                    key={activity.id}
-                    className="
-                      flex
-                      items-center
-                      justify-between
-                      p-5
-                      rounded-xl
-                      border
-                      border-white/5
-                      bg-white/5
-                      hover:bg-white/10
-                      transition-all
-                    "
-                  >
-
-                    <div>
-
-                      <h3 className="font-semibold text-lg text-white">
-                        {activity.titulo}
-                      </h3>
-
-                      <p className="text-gray-400 mt-1">
-                        {activity.obra?.nome ?? "Sem obra"}
-                      </p>
-
-                    </div>
-
-
-                    <div
-                      className="
-                        px-3
-                        py-1
-                        rounded-full
-                        text-sm
-                        bg-white/10
-                        text-white
-                      "
-                    >
-                      {activity.status}
-                    </div>
-
-                  </div>
-
-                ))
-              }
-
-            </div>
-
-          )
-        }
-
+        {activities.length === 0 ? (
+          <EmptyState
+            title="Nenhuma atividade cadastrada"
+            description="As atividades criadas aparecerão aqui."
+          />
+        ) : (
+          <div className="space-y-3">
+            {activities.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition hover:border-slate-200 hover:bg-white sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <h3 className="font-semibold text-slate-900">
+                    {activity.titulo}
+                  </h3>
+                  <p className="mt-0.5 text-sm text-slate-500">
+                    {activity.obra?.nome ?? "Sem obra vinculada"}
+                    {activity.responsavel?.nome &&
+                      ` · ${activity.responsavel.nome}`}
+                  </p>
+                </div>
+                <StatusBadge value={activity.status} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
     </div>
-
   );
 }
-
-export default Dashboard;

@@ -35,6 +35,9 @@ import {
   useAuth,
 } from "../context/AuthContext";
 
+import PageHeader from "../components/ui/PageHeader";
+import StatusBadge from "../components/ui/StatusBadge";
+
 function Activities() {
 
   const { user } = useAuth();
@@ -433,7 +436,7 @@ function Activities() {
     );
 
     setDescricao(
-      activity.descricao
+      activity.descricao ?? ""
     );
 
     setStatus(
@@ -635,30 +638,12 @@ function Activities() {
 
   return (
 
-    <div className="p-10">
+    <div className="page-shell">
 
-      <div className="mb-10">
-
-        <h1
-          className="
-            text-4xl
-            font-bold
-            text-white
-          "
-        >
-          Gestão de Atividades
-        </h1>
-
-        <p
-          className="
-            text-gray-400
-            mt-2
-          "
-        >
-          Controle operacional das obras
-        </p>
-
-      </div>
+      <PageHeader
+        title="Gestão de atividades"
+        description="Planejamento e acompanhamento do capeamento"
+      />
 
       {
         podeCriar && (
@@ -669,15 +654,7 @@ function Activities() {
                 ? atualizarAtividade
                 : criarAtividade
             }
-            className="
-              bg-[#111827]
-              border
-              border-white/10
-              rounded-2xl
-              p-8
-              mb-10
-              shadow-2xl
-            "
+            className="card card-body mb-8"
           >
 
             <div
@@ -691,12 +668,7 @@ function Activities() {
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Título
                 </label>
 
@@ -708,28 +680,14 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 />
 
               </div>
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Responsável
                 </label>
 
@@ -740,16 +698,7 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 >
                   <option value="">
                     Selecione
@@ -770,12 +719,7 @@ function Activities() {
 
             <div className="mt-6">
 
-              <label
-                className="
-                  text-gray-300
-                  text-sm
-                "
-              >
+              <label className="label-field">
                 Descrição
               </label>
 
@@ -787,16 +731,7 @@ function Activities() {
                   )
                 }
                 rows={4}
-                className="
-                  w-full
-                  mt-2
-                  bg-[#1F2937]
-                  border
-                  border-white/10
-                  rounded-xl
-                  p-4
-                  text-white
-                "
+                className="input-field mt-2"
               />
 
             </div>
@@ -813,12 +748,7 @@ function Activities() {
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Status
                 </label>
 
@@ -829,16 +759,7 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 >
 
                   <option value="planejado">
@@ -859,12 +780,7 @@ function Activities() {
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Prioridade
                 </label>
 
@@ -875,16 +791,7 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 >
 
                   <option value="baixa">
@@ -905,12 +812,7 @@ function Activities() {
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Obra
                 </label>
 
@@ -921,16 +823,7 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 >
                   <option value="">
                     Selecione
@@ -949,12 +842,7 @@ function Activities() {
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Projeto
                 </label>
 
@@ -965,16 +853,7 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 >
                   <option value="">
                     Selecione
@@ -993,12 +872,7 @@ function Activities() {
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Equipe
                 </label>
 
@@ -1009,16 +883,7 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 >
 
                   <option value="">
@@ -1058,12 +923,7 @@ function Activities() {
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Data início
                 </label>
 
@@ -1075,28 +935,14 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 />
 
               </div>
 
               <div>
 
-                <label
-                  className="
-                    text-gray-300
-                    text-sm
-                  "
-                >
+                <label className="label-field">
                   Data fim
                 </label>
 
@@ -1108,16 +954,7 @@ function Activities() {
                       e.target.value
                     )
                   }
-                  className="
-                    w-full
-                    mt-2
-                    bg-[#1F2937]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-4
-                    text-white
-                  "
+                  className="input-field mt-2"
                 />
 
               </div>
@@ -1129,16 +966,7 @@ function Activities() {
               <button
                 type="submit"
                 disabled={loading}
-                className="
-                  bg-blue-600
-                  hover:bg-blue-700
-                  transition-all
-                  text-white
-                  px-8
-                  py-4
-                  rounded-xl
-                  font-semibold
-                "
+                className="btn-primary !px-8 !py-3"
               >
 
                 {
@@ -1159,16 +987,7 @@ function Activities() {
                     onClick={
                       limparFormulario
                     }
-                    className="
-                      bg-gray-600
-                      hover:bg-gray-700
-                      transition-all
-                      text-white
-                      px-8
-                      py-4
-                      rounded-xl
-                      font-semibold
-                    "
+                    className="btn-secondary !px-8 !py-3"
                   >
                     Cancelar
                   </button>
@@ -1183,16 +1002,7 @@ function Activities() {
         )
       }
 
-      <div
-        className="
-          bg-[#111827]
-          border
-          border-white/10
-          rounded-2xl
-          p-8
-          shadow-2xl
-        "
-      >
+      <div className="card card-body">
 
         <div
           className="
@@ -1215,15 +1025,7 @@ function Activities() {
                 e.target.value
               )
             }
-            className="
-              flex-1
-              bg-[#1F2937]
-              border
-              border-white/10
-              rounded-xl
-              p-4
-              text-white
-            "
+            className="input-field flex-1"
           />
 
           <select
@@ -1233,14 +1035,7 @@ function Activities() {
                 e.target.value
               )
             }
-            className="
-              bg-[#1F2937]
-              border
-              border-white/10
-              rounded-xl
-              p-4
-              text-white
-            "
+            className="select-field"
           >
 
             <option value="">
@@ -1268,14 +1063,7 @@ function Activities() {
                 e.target.value
               )
             }
-            className="
-              bg-[#1F2937]
-              border
-              border-white/10
-              rounded-xl
-              p-4
-              text-white
-            "
+            className="select-field"
           >
 
             <option value="">
@@ -1298,19 +1086,13 @@ function Activities() {
 
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="table-wrap">
 
-          <table className="w-full">
+          <table className="data-table">
 
             <thead>
 
-              <tr
-                className="
-                  border-b
-                  border-white/10
-                  text-gray-400
-                "
-              >
+              <tr>
 
                 <th className="text-left pb-4">
                   Título
@@ -1342,71 +1124,37 @@ function Activities() {
                 filteredActivities.map(
                   (activity) => (
 
-                    <tr
-                      key={activity.id}
-                      className="
-                        border-b
-                        border-white/5
-                      "
-                    >
+                    <tr key={activity.id}>
 
-                      <td
-                        className="
-                          py-5
-                          text-white
-                        "
-                      >
+                      <td className="font-medium text-slate-900">
                         {activity.titulo}
                       </td>
 
-                      <td
-                        className="
-                          py-5
-                          text-gray-300
-                        "
-                      >
-                        {activity.status}
+                      <td>
+                        <StatusBadge value={activity.status} />
                       </td>
 
-                      <td
-                        className="
-                          py-5
-                          text-gray-300
-                        "
-                      >
-                        {activity.prioridade}
+                      <td>
+                        <StatusBadge value={activity.prioridade} />
                       </td>
 
-                      <td
-                        className="
-                          py-5
-                          text-gray-300
-                        "
-                      >
+                      <td>
                         {activity.responsavel?.nome ?? "—"}
                       </td>
 
-                      <td className="py-5">
-
+                      <td>
+                        <div className="flex flex-wrap gap-2">
                         {
                           podeEditar && (
 
                             <button
+                              type="button"
                               onClick={() =>
                                 editarAtividade(
                                   activity
                                 )
                               }
-                              className="
-                                bg-yellow-500
-                                hover:bg-yellow-600
-                                transition-all
-                                text-white
-                                px-4
-                                py-2
-                                rounded-lg
-                                mr-3
-                              "
+                              className="btn-secondary !px-3 !py-1.5 text-xs"
                             >
                               Editar
                             </button>
@@ -1418,27 +1166,20 @@ function Activities() {
                           podeExcluir && (
 
                             <button
+                              type="button"
                               onClick={() =>
                                 deletarAtividade(
                                   activity.id
                                 )
                               }
-                              className="
-                                bg-red-600
-                                hover:bg-red-700
-                                transition-all
-                                text-white
-                                px-4
-                                py-2
-                                rounded-lg
-                              "
+                              className="btn-danger !px-3 !py-1.5 text-xs"
                             >
                               Excluir
                             </button>
 
                           )
                         }
-
+                        </div>
                       </td>
 
                     </tr>

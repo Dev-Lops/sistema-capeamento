@@ -1,135 +1,59 @@
-import type {
-  ReactNode
-} from "react";
-
+import type { ReactNode } from "react";
+import { cn } from "../../lib/cn";
 
 type Props = {
-
   title: string;
-
   value: number;
-
   icon: ReactNode;
-
   subtitle: string;
-
-  glow: string;
+  accent?: "blue" | "amber" | "cyan" | "green" | "red";
 };
 
+const cardStyles = {
+  blue: "from-blue-500/10 to-blue-600/5 border-blue-200/60",
+  amber: "from-amber-500/10 to-amber-600/5 border-amber-200/60",
+  cyan: "from-cyan-500/10 to-cyan-600/5 border-cyan-200/60",
+  green: "from-emerald-500/10 to-emerald-600/5 border-emerald-200/60",
+  red: "from-red-500/10 to-red-600/5 border-red-200/60",
+};
 
-function KPICard({
+const iconStyles = {
+  blue: "text-blue-600",
+  amber: "text-amber-600",
+  cyan: "text-cyan-600",
+  green: "text-emerald-600",
+  red: "text-red-600",
+};
+
+export default function KPICard({
   title,
   value,
   icon,
   subtitle,
-  glow,
+  accent = "blue",
 }: Props) {
-
   return (
-
     <div
-      className={`
-        relative
-        overflow-hidden
-        rounded-2xl
-        border
-        border-white/10
-        bg-white/5
-        backdrop-blur-xl
-        p-6
-        shadow-2xl
-        transition-all
-        duration-300
-        hover:scale-[1.02]
-        ${glow}
-      `}
+      className={cn(
+        "card relative overflow-hidden bg-gradient-to-br p-6 transition hover:shadow-md",
+        cardStyles[accent],
+      )}
     >
-
-      {/* GLOW */}
-
-      <div
-        className="
-          absolute
-          top-0
-          right-0
-          w-32
-          h-32
-          bg-white/10
-          rounded-full
-          blur-3xl
-        "
-      />
-
-
-      {/* CONTEÚDO */}
-
-      <div className="relative z-10">
-
-        <div
-          className="
-            flex
-            items-center
-            justify-between
-            mb-6
-          "
-        >
-
-          <div>
-
-            <p
-              className="
-                text-sm
-                text-gray-400
-              "
-            >
-              {title}
-            </p>
-
-            <h2
-              className="
-                text-4xl
-                font-bold
-                text-white
-                mt-2
-              "
-            >
-              {value}
-            </h2>
-
-          </div>
-
-
-          <div
-            className="
-              w-14
-              h-14
-              rounded-xl
-              bg-white/10
-              flex
-              items-center
-              justify-center
-              text-white
-            "
-          >
-            {icon}
-          </div>
-
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
+          <p className="mt-2 text-xs text-slate-500">{subtitle}</p>
         </div>
-
-
-        <p
-          className="
-            text-sm
-            text-gray-400
-          "
+        <div
+          className={cn(
+            "flex h-12 w-12 items-center justify-center rounded-xl bg-white/80 shadow-sm",
+            iconStyles[accent],
+          )}
         >
-          {subtitle}
-        </p>
-
+          {icon}
+        </div>
       </div>
-
     </div>
   );
 }
-
-export default KPICard;

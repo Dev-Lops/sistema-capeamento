@@ -1,153 +1,94 @@
-import { Link, useNavigate } from "react-router-dom";
-import {useAuth} from "../context/AuthContext.tsx";
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  ListTodo,
+  Building2,
+  FolderKanban,
+  Users,
+  Factory,
+  LogOut,
+  HardHat,
+} from "lucide-react";
+
+import { useAuth } from "../context/AuthContext";
+import { cn } from "../lib/cn";
+
+const links = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "planner", "operador"] },
+  { to: "/activities", label: "Atividades", icon: ListTodo, roles: ["admin", "planner"] },
+  { to: "/obras", label: "Obras", icon: Building2, roles: ["admin", "planner"] },
+  { to: "/projects", label: "Projetos", icon: FolderKanban, roles: ["admin", "planner"] },
+  { to: "/teams", label: "Equipes", icon: Users, roles: ["admin", "planner"] },
+  { to: "/companies", label: "Empresas", icon: Factory, roles: ["admin", "planner"] },
+];
+
+const roleLabels: Record<string, string> = {
+  admin: "Administrador",
+  planner: "Planejador",
+  operador: "Operador",
+};
 
 function Sidebar() {
+  const { user, logout } = useAuth();
 
-  const navigate = useNavigate();
-const {
-  user,
-} = useAuth();
-
-  /*
-  ==========================
-  LOGOUT
-  ==========================
-  */
-
-  function logout() {
-
-    localStorage.removeItem(
-      "token"
-    );
-
-    navigate("/login");
-  }
+  const visibleLinks = links.filter(
+    (link) => user && link.roles.includes(user.role),
+  );
 
   return (
+    <div className="flex h-full flex-col bg-sidebar text-white">
+      <div className="border-b border-white/10 p-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 shadow-lg shadow-brand-600/30">
+            <HardHat className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-bold leading-tight">Capeamento</p>
+            <p className="text-xs text-slate-400">Gestão operacional</p>
+          </div>
+        </div>
+      </div>
 
-    <aside
-      className="
-        w-64
-        bg-gray-900
-        text-white
-        min-h-screen
-        p-6
-      "
-    >
-        <div
-  className="
-    mb-10
-    border-b
-    border-gray-700
-    pb-4
-  "
->
+      {user && (
+        <div className="mx-4 mt-4 rounded-xl bg-white/5 px-4 py-3">
+          <p className="truncate text-sm font-semibold">{user.nome}</p>
+          <p className="text-xs text-slate-400">
+            {roleLabels[user.role] ?? user.role}
+          </p>
+        </div>
+      )}
 
-  <p className="font-bold">
-    {user?.nome}
-  </p>
-
-  <p
-    className="
-      text-sm
-      text-gray-400
-    "
-  >
-    {user?.role}
-  </p>
-
-</div>
-
-      <h1
-        className="
-          text-2xl
-          font-bold
-          mb-10
-        "
-      >
-        Gerenciador
-      </h1>
-
-      <nav
-        className="
-          flex
-          flex-col
-          gap-4
-        "
-      >
-
-        <Link
-          to="/dashboard"
-          className="
-            hover:bg-gray-700
-            p-3
-            rounded
-          "
-        >
-          Dashboard
-        </Link>
-
-        <Link
-          to="/activities"
-          className="
-            hover:bg-gray-700
-            p-3
-            rounded
-          "
-        >
-          Atividades
-        </Link>
-        <Link
-          to="/obras"
-          className="
-            hover:bg-gray-700
-            p-3
-            rounded
-          "
-        >
-          Obras
-        </Link>
-
-        <Link
-          to="/projects"
-          className="
-            hover:bg-gray-700
-            p-3
-            rounded
-          "
-        >
-          Projetos
-        </Link>
-
-          <Link to="/teams"
-className="
-            hover:bg-gray-700
-            p-3
-            rounded
-          ">
-  Equipes
-          </Link>
-
-        {/* LOGOUT */}
-
-        <button
-          onClick={logout}
-          className="
-            bg-red-600
-            hover:bg-red-700
-            p-3
-            rounded
-            text-left
-            mt-10
-          "
-        >
-          Sair
-        </button>
-
-
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+        {visibleLinks.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition",
+                isActive
+                  ? "bg-brand-600 text-white shadow-lg shadow-brand-600/25"
+                  : "text-slate-400 hover:bg-sidebar-hover hover:text-white",
+              )
+            }
+          >
+            <Icon className="h-5 w-5 shrink-0" />
+            {label}
+          </NavLink>
+        ))}
       </nav>
 
-    </aside>
+      <div className="border-t border-white/10 p-4">
+        <button
+          type="button"
+          onClick={logout}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-300 transition hover:bg-red-500/10 hover:text-red-200"
+        >
+          <LogOut className="h-5 w-5" />
+          Sair
+        </button>
+      </div>
+    </div>
   );
 }
 

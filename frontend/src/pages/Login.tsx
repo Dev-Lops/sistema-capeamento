@@ -120,7 +120,8 @@ function Login() {
           justify-between
           w-1/2
           bg-gradient-to-br
-          from-blue-900
+          from-slate-900
+          via-blue-950
           to-slate-900
           text-white
           p-16
