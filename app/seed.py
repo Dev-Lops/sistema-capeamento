@@ -1,11 +1,12 @@
 from datetime import date
 
-from app.db import SessionLocal
+import app.models  # noqa: F401
 
-from app.models.user import User
-from app.models.activity import Activity
+from app.db import SessionLocal
+from app.models import Activity, Obra, User
 
 from app.core.security import gerar_hash
+from app.core.roles import ADMIN, PLANNER, OPERADOR
 
 
 db = SessionLocal()
@@ -18,45 +19,90 @@ def criar_usuarios():
             "nome": "Administrador",
             "email": "admin@email.com",
             "senha": "123456",
-            "role": "admin"
+            "role": ADMIN,
         },
         {
-            "nome": "Carlos",
-            "email": "carlos@email.com",
+            "nome": "Ana Planner",
+            "email": "planner@email.com",
             "senha": "123456",
-            "role": "encarregado"
+            "role": PLANNER,
         },
         {
-            "nome": "Fernanda",
-            "email": "fernanda@email.com",
+            "nome": "Carlos Operador",
+            "email": "operador@email.com",
             "senha": "123456",
-            "role": "engenharia"
-        }
+            "role": OPERADOR,
+        },
     ]
 
     for usuario in usuarios:
-
         usuario_existente = db.query(User).filter(
             User.email == usuario["email"]
         ).first()
 
-        if not usuario_existente:
+        if usuario_existente:
+            usuario_existente.role = usuario["role"]
+            continue
 
-            novo_usuario = User(
+        db.add(
+            User(
                 nome=usuario["nome"],
                 email=usuario["email"],
                 senha=gerar_hash(usuario["senha"]),
-                role=usuario["role"]
+                role=usuario["role"],
             )
-
-            db.add(novo_usuario)
+        )
 
     db.commit()
-
     print("Usuários criados com sucesso")
 
 
+def criar_obras():
+
+    obras = [
+        {
+            "nome": "UTE GNA II",
+            "cliente": "GNA",
+            "local": "Macaé - RJ",
+            "status": "em_andamento",
+        },
+        {
+            "nome": "Refinaria X",
+            "cliente": "Petro X",
+            "local": "Paulínia - SP",
+            "status": "planejada",
+        },
+        {
+            "nome": "Terminal Sul",
+            "cliente": "Logística Sul",
+            "local": "Santos - SP",
+            "status": "em_andamento",
+        },
+    ]
+
+    for dados in obras:
+        existe = db.query(Obra).filter(Obra.nome == dados["nome"]).first()
+        if existe:
+            continue
+
+        db.add(Obra(**dados))
+
+    db.commit()
+    print("Obras criadas com sucesso")
+
+
 def criar_atividades():
+
+    if db.query(Activity).count() > 0:
+        print("Atividades já existem, pulando seed de atividades")
+        return
+
+    planner = db.query(User).filter(User.email == "planner@email.com").first()
+    operador = db.query(User).filter(User.email == "operador@email.com").first()
+
+    obra_gna = db.query(Obra).filter(Obra.nome == "UTE GNA II").first()
+    obra_refinaria = db.query(Obra).filter(Obra.nome == "Refinaria X").first()
+    obra_terminal = db.query(Obra).filter(Obra.nome == "Terminal Sul").first()
 
     atividades = [
         {
@@ -66,8 +112,8 @@ def criar_atividades():
             "prioridade": "alta",
             "data_inicio": date(2026, 5, 20),
             "data_fim": date(2026, 5, 30),
-            "responsavel": "Carlos",
-            "obra": "UTE GNA II"
+            "obra_id": obra_gna.id if obra_gna else None,
+            "responsavel_id": planner.id if planner else None,
         },
         {
             "titulo": "Capeamento Linha B",
@@ -76,8 +122,8 @@ def criar_atividades():
             "prioridade": "media",
             "data_inicio": date(2026, 5, 10),
             "data_fim": date(2026, 5, 15),
-            "responsavel": "Fernanda",
-            "obra": "Refinaria X"
+            "obra_id": obra_refinaria.id if obra_refinaria else None,
+            "responsavel_id": planner.id if planner else None,
         },
         {
             "titulo": "Inspeção térmica",
@@ -86,8 +132,8 @@ def criar_atividades():
             "prioridade": "alta",
             "data_inicio": date(2026, 5, 1),
             "data_fim": date(2026, 5, 5),
-            "responsavel": "Carlos",
-            "obra": "UTE GNA II"
+            "obra_id": obra_gna.id if obra_gna else None,
+            "responsavel_id": operador.id if operador else None,
         },
         {
             "titulo": "Capeamento Emergencial",
@@ -96,35 +142,20 @@ def criar_atividades():
             "prioridade": "alta",
             "data_inicio": date(2026, 5, 1),
             "data_fim": date(2026, 5, 8),
-            "responsavel": "Fernanda",
-            "obra": "Terminal Sul"
-        }
+            "obra_id": obra_terminal.id if obra_terminal else None,
+            "responsavel_id": planner.id if planner else None,
+        },
     ]
 
     for atividade in atividades:
-
-        nova_atividade = Activity(
-            titulo=atividade["titulo"],
-            descricao=atividade["descricao"],
-            status=atividade["status"],
-            prioridade=atividade["prioridade"],
-            data_inicio=atividade["data_inicio"],
-            data_fim=atividade["data_fim"],
-            responsavel=atividade["responsavel"],
-            obra=atividade["obra"]
-        )
-
-        db.add(nova_atividade)
+        db.add(Activity(**atividade))
 
     db.commit()
-
     print("Atividades criadas com sucesso")
 
 
 if __name__ == "__main__":
-
     criar_usuarios()
-
+    criar_obras()
     criar_atividades()
-
     print("Seed executado com sucesso")

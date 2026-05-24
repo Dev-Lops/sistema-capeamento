@@ -23,6 +23,14 @@ import type {
   Team,
 } from "../types/team";
 
+import type {
+  Obra,
+} from "../types/obra";
+
+import type {
+  UserOption,
+} from "../types/user";
+
 import {
   useAuth,
 } from "../context/AuthContext";
@@ -74,12 +82,12 @@ function Activities() {
     setPrioridade] =
     useState("media");
 
-  const [responsavel,
-    setResponsavel] =
+  const [responsavelId,
+    setResponsavelId] =
     useState("");
 
-  const [obra,
-    setObra] =
+  const [obraId,
+    setObraId] =
     useState("");
 
   const [dataInicio,
@@ -137,6 +145,14 @@ function Activities() {
   const [teams,
     setTeams] =
     useState<Team[]>([]);
+
+  const [obras,
+    setObras] =
+    useState<Obra[]>([]);
+
+  const [usuarios,
+    setUsuarios] =
+    useState<UserOption[]>([]);
 
   /*
   ===================================
@@ -237,6 +253,69 @@ function Activities() {
     }
   }
 
+  async function carregarObras() {
+
+    try {
+
+      const response =
+        await api.get<Obra[]>(
+          "/obras"
+        );
+
+      setObras(
+        response.data
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Erro ao carregar obras"
+      );
+    }
+  }
+
+  async function carregarUsuarios() {
+
+    try {
+
+      const response =
+        await api.get<UserOption[]>(
+          "/users"
+        );
+
+      setUsuarios(
+        response.data
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Erro ao carregar usuários"
+      );
+    }
+  }
+
+  function montarPayload() {
+    return {
+      titulo,
+      descricao,
+      status,
+      prioridade,
+      data_inicio: dataInicio,
+      data_fim: dataFim,
+      obra_id: obraId ? Number(obraId) : null,
+      project_id: projectId ? Number(projectId) : null,
+      team_id: teamId ? Number(teamId) : null,
+      responsavel_id: responsavelId
+        ? Number(responsavelId)
+        : null,
+    };
+  }
+
   /*
   ===================================
   INIT
@@ -250,6 +329,10 @@ function Activities() {
     void carregarProjetos();
 
     void carregarEquipes();
+
+    void carregarObras();
+
+    void carregarUsuarios();
 
   }, []);
 
@@ -271,9 +354,9 @@ function Activities() {
 
     setPrioridade("media");
 
-    setResponsavel("");
+    setResponsavelId("");
 
-    setObra("");
+    setObraId("");
 
     setDataInicio("");
 
@@ -302,18 +385,7 @@ function Activities() {
 
       await api.post(
         "/activities",
-        {
-          titulo,
-          descricao,
-          status,
-          prioridade,
-          responsavel,
-          obra,
-          data_inicio: dataInicio,
-          data_fim: dataFim,
-          project_id: Number(projectId),
-          team_id: Number(teamId),
-        }
+        montarPayload()
       );
 
       toast.success(
@@ -372,12 +444,16 @@ function Activities() {
       activity.prioridade
     );
 
-    setResponsavel(
-      activity.responsavel
+    setResponsavelId(
+      String(
+        activity.responsavel_id || ""
+      )
     );
 
-    setObra(
-      activity.obra
+    setObraId(
+      String(
+        activity.obra_id || ""
+      )
     );
 
     setDataInicio(
@@ -419,18 +495,7 @@ function Activities() {
 
       await api.put(
         `/activities/${editingId}`,
-        {
-          titulo,
-          descricao,
-          status,
-          prioridade,
-          responsavel,
-          obra,
-          data_inicio: dataInicio,
-          data_fim: dataFim,
-          project_id: Number(projectId),
-          team_id: Number(teamId),
-        }
+        montarPayload()
       );
 
       toast.success(
@@ -520,7 +585,7 @@ function Activities() {
 
           ||
 
-          activity.responsavel
+          (activity.responsavel?.nome || "")
             .toLowerCase()
             .includes(
               busca.toLowerCase()
@@ -528,7 +593,7 @@ function Activities() {
 
           ||
 
-          activity.obra
+          (activity.obra?.nome || "")
             .toLowerCase()
             .includes(
               busca.toLowerCase()
@@ -668,11 +733,10 @@ function Activities() {
                   Responsável
                 </label>
 
-                <input
-                  type="text"
-                  value={responsavel}
+                <select
+                  value={responsavelId}
                   onChange={(e) =>
-                    setResponsavel(
+                    setResponsavelId(
                       e.target.value
                     )
                   }
@@ -686,7 +750,19 @@ function Activities() {
                     p-4
                     text-white
                   "
-                />
+                >
+                  <option value="">
+                    Selecione
+                  </option>
+                  {usuarios.map((usuario) => (
+                    <option
+                      key={usuario.id}
+                      value={usuario.id}
+                    >
+                      {usuario.nome}
+                    </option>
+                  ))}
+                </select>
 
               </div>
 
@@ -839,6 +915,50 @@ function Activities() {
                 </label>
 
                 <select
+                  value={obraId}
+                  onChange={(e) =>
+                    setObraId(
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    mt-2
+                    bg-[#1F2937]
+                    border
+                    border-white/10
+                    rounded-xl
+                    p-4
+                    text-white
+                  "
+                >
+                  <option value="">
+                    Selecione
+                  </option>
+                  {obras.map((obra) => (
+                    <option
+                      key={obra.id}
+                      value={obra.id}
+                    >
+                      {obra.nome}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+
+              <div>
+
+                <label
+                  className="
+                    text-gray-300
+                    text-sm
+                  "
+                >
+                  Projeto
+                </label>
+
+                <select
                   value={projectId}
                   onChange={(e) =>
                     setProjectId(
@@ -856,26 +976,17 @@ function Activities() {
                     text-white
                   "
                 >
-
                   <option value="">
                     Selecione
                   </option>
-
-                  {
-                    projects.map(
-                      (project) => (
-
-                        <option
-                          key={project.id}
-                          value={project.id}
-                        >
-                          {project.nome}
-                        </option>
-
-                      )
-                    )
-                  }
-
+                  {projects.map((project) => (
+                    <option
+                      key={project.id}
+                      value={project.id}
+                    >
+                      {project.nome}
+                    </option>
+                  ))}
                 </select>
 
               </div>
@@ -1272,7 +1383,7 @@ function Activities() {
                           text-gray-300
                         "
                       >
-                        {activity.responsavel}
+                        {activity.responsavel?.nome ?? "—"}
                       </td>
 
                       <td className="py-5">

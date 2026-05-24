@@ -12,36 +12,17 @@ import {
 
 import api from "../services/api";
 
-import type {
-  Activity as ActivityType
-} from "../types/activity";
+import type { Activity as ActivityType } from "../types/activity";
+import type { DashboardData } from "../types/dashboard";
 
-import KPICard
-from "../components/dashboard/KPICard";
+import KPICard from "../components/dashboard/KPICard";
 
 
 function Dashboard() {
 
-  /*
-  ===================================
-  ESTADOS
-  ===================================
-  */
-
-  const [activities,
-    setActivities] =
-      useState<ActivityType[]>([]);
-
-  const [loading,
-    setLoading] =
-      useState(true);
-
-
-  /*
-  ===================================
-  BUSCAR DADOS
-  ===================================
-  */
+  const [stats, setStats] = useState<DashboardData | null>(null);
+  const [activities, setActivities] = useState<ActivityType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
@@ -50,12 +31,14 @@ function Dashboard() {
       try {
 
         const response =
-          await api.get(
-            "/activities"
+          await api.get<DashboardData>(
+            "/dashboard"
           );
 
+        setStats(response.data);
+
         setActivities(
-          response.data
+          response.data.atividades_recentes ?? []
         );
 
       } catch (error) {
@@ -73,43 +56,6 @@ function Dashboard() {
   }, []);
 
 
-  /*
-  ===================================
-  KPIs
-  ===================================
-  */
-
-  const total =
-    activities.length;
-
-  const planejadas =
-    activities.filter(
-      (activity) =>
-        activity.status ===
-        "planejado"
-    ).length;
-
-  const emExecucao =
-    activities.filter(
-      (activity) =>
-        activity.status ===
-        "em_execucao"
-    ).length;
-
-  const concluidas =
-    activities.filter(
-      (activity) =>
-        activity.status ===
-        "concluido"
-    ).length;
-
-
-  /*
-  ===================================
-  LOADING
-  ===================================
-  */
-
   if (loading) {
 
     return (
@@ -118,260 +64,155 @@ function Dashboard() {
         className="
           min-h-screen
           bg-[#0f172a]
+          flex
+          items-center
+          justify-center
           text-white
-          p-10
         "
       >
         Carregando dashboard...
       </div>
+
     );
   }
 
-
-  /*
-  ===================================
-  INTERFACE
-  ===================================
-  */
+  const total = stats?.total_atividades ?? 0;
+  const planejadas = stats?.planejadas ?? 0;
+  const emExecucao = stats?.em_execucao ?? 0;
+  const concluidas = stats?.concluidas ?? 0;
+  const atrasadas = stats?.atrasadas ?? 0;
 
   return (
 
-    <div
-      className="
-        min-h-screen
-        bg-[#0f172a]
-        text-white
-        p-10
-      "
-    >
+    <div className="p-10">
 
-      {/* HEADER */}
+      <div className="mb-10">
 
-      <div
-        className="
-          flex
-          items-center
-          justify-between
-          mb-10
-        "
-      >
+        <h1 className="text-4xl font-bold text-white">
+          Dashboard Operacional
+        </h1>
 
-        <div>
-
-          <p className="text-gray-400">
-            Sistema operacional
-          </p>
-
-          <h1
-            className="
-              text-5xl
-              font-bold
-              mt-2
-            "
-          >
-            Dashboard
-          </h1>
-
-        </div>
-
-
-        <div
-          className="
-            flex
-            items-center
-            gap-3
-            bg-emerald-500/10
-            border
-            border-emerald-500/20
-            px-5
-            py-3
-            rounded-2xl
-          "
-        >
-
-          <div
-            className="
-              w-3
-              h-3
-              rounded-full
-              bg-emerald-400
-            "
-          />
-
-          <span
-            className="
-              text-emerald-300
-              font-medium
-            "
-          >
-            Sistema operacional ativo
-          </span>
-
-        </div>
+        <p className="text-gray-400 mt-2">
+          Visão geral das atividades de capeamento
+        </p>
 
       </div>
 
-
-      {/* KPI GRID */}
 
       <div
         className="
           grid
           grid-cols-1
           md:grid-cols-2
-          xl:grid-cols-4
+          xl:grid-cols-5
           gap-6
           mb-10
         "
       >
 
         <KPICard
-          title="Total de atividades"
+          title="Total"
           value={total}
-          subtitle="Atividades registradas"
+          icon={<Activity />}
+          subtitle="Atividades ativas"
           glow="hover:shadow-blue-500/20"
-          icon={
-            <Activity size={28} />
-          }
         />
-
 
         <KPICard
           title="Planejadas"
           value={planejadas}
-          subtitle="Aguardando execução"
+          icon={<Clock3 />}
+          subtitle="Aguardando início"
           glow="hover:shadow-yellow-500/20"
-          icon={
-            <Clock3 size={28} />
-          }
         />
-
 
         <KPICard
           title="Em execução"
           value={emExecucao}
-          subtitle="Operações em andamento"
-          glow="hover:shadow-orange-500/20"
-          icon={
-            <AlertTriangle size={28} />
-          }
+          icon={<Activity />}
+          subtitle="Em andamento"
+          glow="hover:shadow-cyan-500/20"
         />
-
 
         <KPICard
           title="Concluídas"
           value={concluidas}
-          subtitle="Execuções finalizadas"
-          glow="hover:shadow-emerald-500/20"
-          icon={
-            <CheckCircle2 size={28} />
-          }
+          icon={<CheckCircle2 />}
+          subtitle="Finalizadas"
+          glow="hover:shadow-green-500/20"
+        />
+
+        <KPICard
+          title="Atrasadas"
+          value={atrasadas}
+          icon={<AlertTriangle />}
+          subtitle="Fora do prazo"
+          glow="hover:shadow-red-500/20"
         />
 
       </div>
 
 
-      {/* GRID INFERIOR */}
-
       <div
         className="
-          grid
-          grid-cols-1
-          xl:grid-cols-3
-          gap-6
+          bg-[#111827]
+          border
+          border-white/10
+          rounded-2xl
+          p-8
         "
       >
 
-        {/* FEED */}
-
-        <div
+        <h2
           className="
-            xl:col-span-2
-            rounded-2xl
-            border
-            border-white/10
-            bg-white/5
-            backdrop-blur-xl
-            p-8
+            text-2xl
+            font-bold
+            text-white
+            mb-6
           "
         >
-
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              mb-8
-            "
-          >
-
-            <h2
-              className="
-                text-2xl
-                font-bold
-              "
-            >
-              Atividades recentes
-            </h2>
-
-            <span
-              className="
-                text-sm
-                text-gray-400
-              "
-            >
-              Últimas operações
-            </span>
-
-          </div>
+          Atividades recentes
+        </h2>
 
 
-          <div className="space-y-4">
+        {
+          activities.length === 0 ? (
 
-            {
-              activities
-                .slice(0, 5)
-                .map((activity) => (
+            <p className="text-gray-400">
+              Nenhuma atividade cadastrada.
+            </p>
 
-                <div
-                  key={activity.id}
-                  className="
-                    p-5
-                    rounded-xl
-                    border
-                    border-white/5
-                    bg-white/5
-                    hover:bg-white/10
-                    transition-all
-                  "
-                >
+          ) : (
+
+            <div className="space-y-4">
+
+              {
+                activities.map((activity) => (
 
                   <div
+                    key={activity.id}
                     className="
                       flex
                       items-center
                       justify-between
+                      p-5
+                      rounded-xl
+                      border
+                      border-white/5
+                      bg-white/5
+                      hover:bg-white/10
+                      transition-all
                     "
                   >
 
                     <div>
 
-                      <h3
-                        className="
-                          font-semibold
-                          text-lg
-                        "
-                      >
+                      <h3 className="font-semibold text-lg text-white">
                         {activity.titulo}
                       </h3>
 
-                      <p
-                        className="
-                          text-gray-400
-                          mt-1
-                        "
-                      >
-                        {activity.obra}
+                      <p className="text-gray-400 mt-1">
+                        {activity.obra?.nome ?? "Sem obra"}
                       </p>
 
                     </div>
@@ -384,6 +225,7 @@ function Dashboard() {
                         rounded-full
                         text-sm
                         bg-white/10
+                        text-white
                       "
                     >
                       {activity.status}
@@ -391,121 +233,18 @@ function Dashboard() {
 
                   </div>
 
-                </div>
-
-              ))
-            }
-
-          </div>
-
-        </div>
-
-
-        {/* PAINEL LATERAL */}
-
-        <div
-          className="
-            rounded-2xl
-            border
-            border-white/10
-            bg-white/5
-            backdrop-blur-xl
-            p-8
-          "
-        >
-
-          <h2
-            className="
-              text-2xl
-              font-bold
-              mb-8
-            "
-          >
-            Resumo operacional
-          </h2>
-
-
-          <div className="space-y-6">
-
-            <div>
-
-              <p className="text-gray-400">
-                Taxa de conclusão
-              </p>
-
-              <h3
-                className="
-                  text-4xl
-                  font-bold
-                  mt-2
-                "
-              >
-                {
-                  total > 0
-                    ? Math.round(
-                        (
-                          concluidas
-                          /
-                          total
-                        ) * 100
-                      )
-                    : 0
-                }%
-              </h3>
+                ))
+              }
 
             </div>
 
-
-            <div>
-
-              <p className="text-gray-400">
-                Operações ativas
-              </p>
-
-              <h3
-                className="
-                  text-4xl
-                  font-bold
-                  mt-2
-                "
-              >
-                {emExecucao}
-              </h3>
-
-            </div>
-
-
-            <div>
-
-              <p className="text-gray-400">
-                Atividades críticas
-              </p>
-
-              <h3
-                className="
-                  text-4xl
-                  font-bold
-                  mt-2
-                "
-              >
-                {
-                  activities.filter(
-                    (activity) =>
-                      activity.prioridade
-                      === "alta"
-                  ).length
-                }
-              </h3>
-
-            </div>
-
-          </div>
-
-        </div>
+          )
+        }
 
       </div>
 
     </div>
+
   );
 }
 

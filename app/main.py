@@ -7,7 +7,6 @@ from app.routes.activity import router as activity_router
 from app.routes.dashboard import router as dashboard_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.obra import router as obra_router
-from app.routes.work import router as work_router
 from app.routes.company import (router as company_router)
 from app.routes.team import (router as team_router)
 from app.routes.project import (router as project_router)
@@ -31,7 +30,6 @@ app.include_router(user_router)
 app.include_router(activity_router)
 app.include_router(dashboard_router)
 app.include_router(obra_router)
-app.include_router(work_router)
 app.include_router(company_router)
 app.include_router(team_router)
 app.include_router(project_router)

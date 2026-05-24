@@ -97,14 +97,27 @@ const {
         >
           Atividades
         </Link>
-<Link to="/projects"
-className="
+        <Link
+          to="/obras"
+          className="
             hover:bg-gray-700
             p-3
             rounded
-          ">
-  Obras
-</Link>
+          "
+        >
+          Obras
+        </Link>
+
+        <Link
+          to="/projects"
+          className="
+            hover:bg-gray-700
+            p-3
+            rounded
+          "
+        >
+          Projetos
+        </Link>
 
           <Link to="/teams"
 className="

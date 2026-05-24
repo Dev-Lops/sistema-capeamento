@@ -8,9 +8,14 @@ import {
   HardHat,
 } from "lucide-react";
 
+import { useNavigate } from "react-router-dom";
+
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   /*
   ===================================
@@ -69,13 +74,9 @@ function Login() {
       const token =
         response.data.access_token;
 
-      localStorage.setItem(
-        "token",
-        token
-      );
+      await login(token);
 
-      window.location.href =
-        "/dashboard";
+      navigate("/dashboard", { replace: true });
 
     } catch (error) {
 

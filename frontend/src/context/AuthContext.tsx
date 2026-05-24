@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -8,172 +9,86 @@ import {
 
 import api from "../services/api";
 
-
-/*
-===================================
-TIPAGEM DO USUÁRIO
-===================================
-*/
-
-type User = {
+export type User = {
   id: number;
   nome: string;
   email: string;
   role: string;
 };
 
-
-/*
-===================================
-TIPAGEM DO CONTEXTO
-===================================
-*/
-
 type AuthContextType = {
   user: User | null;
   loading: boolean;
+  login: (token: string) => Promise<void>;
   logout: () => void;
 };
 
-
-/*
-===================================
-CRIANDO CONTEXTO
-===================================
-*/
-
-const AuthContext =
-  createContext<AuthContextType>(
-    {} as AuthContextType
-  );
-
-
-/*
-===================================
-PROVIDER
-===================================
-*/
+const AuthContext = createContext<AuthContextType>(
+  {} as AuthContextType
+);
 
 type Props = {
   children: ReactNode;
 };
 
-export function AuthProvider({
-  children
-}: Props) {
+async function buscarUsuario() {
+  const response = await api.get<User>("/auth/me");
+  return response.data;
+}
 
-  const [user,
-    setUser] =
-      useState<User | null>(
-        null
-      );
+export function AuthProvider({ children }: Props) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [loading,
-    setLoading] =
-      useState(true);
+  const login = useCallback(async (token: string) => {
+    localStorage.setItem("token", token);
+    const usuario = await buscarUsuario();
+    setUser(usuario);
+  }, []);
 
-
-  /*
-  ===================================
-  CARREGAR USUÁRIO
-  ===================================
-  */
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    setUser(null);
+    window.location.href = "/login";
+  }, []);
 
   useEffect(() => {
-
     async function carregarUsuario() {
-
-      const token =
-        localStorage.getItem(
-          "token"
-        );
+      const token = localStorage.getItem("token");
 
       if (!token) {
-
         setLoading(false);
-
         return;
       }
 
       try {
-
-        const response =
-          await api.get(
-            "/auth/me"
-          );
-
-        setUser(
-          response.data
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        localStorage.removeItem(
-          "token"
-        );
-
+        const usuario = await buscarUsuario();
+        setUser(usuario);
+      } catch {
+        localStorage.removeItem("token");
+        setUser(null);
       } finally {
-
         setLoading(false);
       }
     }
 
     void carregarUsuario();
-
   }, []);
 
-
-  /*
-  ===================================
-  LOGOUT
-  ===================================
-  */
-
-  function logout() {
-
-  localStorage.removeItem(
-    "token"
-  );
-
-  localStorage.removeItem(
-    "user"
-  );
-
-  setUser(null);
-
-  window.location.href =
-    "/login";
-}
-
-
   return (
-
     <AuthContext.Provider
       value={{
         user,
         loading,
+        login,
         logout,
       }}
     >
-
       {children}
-
     </AuthContext.Provider>
   );
 }
 
-
-/*
-===================================
-HOOK CUSTOMIZADO
-===================================
-*/
-
 export function useAuth() {
-
-  return useContext(
-    AuthContext
-  );
+  return useContext(AuthContext);
 }

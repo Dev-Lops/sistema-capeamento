@@ -14,7 +14,7 @@ import Activities from "./pages/Activities";
 import Login from "./pages/Login";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-import Works from "./pages/Works.tsx";
+import Obras from "./pages/Works.tsx";
 import Companies from "./pages/Companies.tsx";
 import Teams from "./pages/Teams.tsx";
 import Projects from "./pages/Projects.tsx";
@@ -75,60 +75,75 @@ function App() {
         />
 
           <Route
-  path="/works"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "admin",
-        "planner"
-      ]}
-    >
-      <Works />
-    </ProtectedRoute>
-  }
-/>
+            path="/obras"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "planner",
+                ]}
+              >
+                <Layout>
+                  <Obras />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
           <Route
-  path="/companies"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "admin",
-        "planner"
-      ]}
-    >
-      <Companies />
-    </ProtectedRoute>
-  }
-/>
+            path="/works"
+            element={
+              <Navigate to="/obras" replace />
+            }
+          />
 
           <Route
-  path="/teams"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "admin",
-        "planner"
-      ]}
-    >
-      <Teams />
-    </ProtectedRoute>
-  }
-/>
+            path="/companies"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "planner",
+                ]}
+              >
+                <Layout>
+                  <Companies />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
           <Route
-  path="/projects"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "admin",
-        "planner"
-      ]}
-    >
-      <Projects />
-    </ProtectedRoute>
-  }
-/>
+            path="/teams"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "planner",
+                ]}
+              >
+                <Layout>
+                  <Teams />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/projects"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "planner",
+                ]}
+              >
+                <Layout>
+                  <Projects />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
         {/* REDIRECT */}
 

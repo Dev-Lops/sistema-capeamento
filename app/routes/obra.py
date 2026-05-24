@@ -13,6 +13,8 @@ from app.schemas.obra import (
     ObraResponse
 )
 
+from app.core.deps import require_admin_or_planner
+
 router = APIRouter(
     prefix="/obras",
     tags=["Obras"]
@@ -32,7 +34,8 @@ CRIAR OBRA
 )
 def criar_obra(
     dados: ObraCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
     obra = Obra(**dados.model_dump())
@@ -58,10 +61,11 @@ LISTAR OBRAS
     response_model=list[ObraResponse]
 )
 def listar_obras(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
-    return db.query(Obra).all()
+    return db.query(Obra).filter(Obra.ativo == True).all()
 
 
 """
@@ -77,7 +81,8 @@ BUSCAR OBRA
 )
 def buscar_obra(
     obra_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
     obra = db.query(Obra).filter(
@@ -108,7 +113,8 @@ ATUALIZAR
 def atualizar_obra(
     obra_id: int,
     dados: ObraCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
     obra = db.query(Obra).filter(
@@ -147,7 +153,8 @@ DELETAR
 @router.delete("/{obra_id}")
 def deletar_obra(
     obra_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
     obra = db.query(Obra).filter(

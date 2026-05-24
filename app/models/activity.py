@@ -1,96 +1,41 @@
-from datetime import date
-
-from pydantic import BaseModel
-from sqlalchemy import Integer, Column, String, Text, Date, Boolean
+from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import relationship
 
 from app.db import Base
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
 
 class Activity(Base):
 
-    __tablename__ =  "activities"
+    __tablename__ = "activities"
 
-    id = Column(
-        Integer,
-        primary_key = True,
-        index = True,
-    )
+    id = Column(Integer, primary_key=True, index=True)
 
-    titulo = Column(
-        String,
-        nullable=False
-    )
+    titulo = Column(String, nullable=False)
 
-    descricao = Column(
-        Text
-    )
+    descricao = Column(Text)
 
-    status = Column(
-        String,
-        default = "planejado"
-    )
+    status = Column(String, default="planejado")
 
-    prioridade = Column(
-        String,
-        default = "media"
-    )
+    prioridade = Column(String, default="media")
 
-    data_inicio = Column(
-        Date
-    )
+    data_inicio = Column(Date)
 
-    data_fim = Column(
-        Date
-    )
+    data_fim = Column(Date)
 
-    responsavel = Column(
-        String
-    )
+    ativo = Column(Boolean, default=True)
 
-    obra = Column(
-        String
-    )
+    obra_id = Column(Integer, ForeignKey("obras.id"), nullable=True)
 
-    ativo = Column(
-        Boolean,
-        default=True
-    )
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
 
-    project_id = Column(
-        Integer,
-        ForeignKey("projects.id")
-    )
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)
 
-    project = relationship(
-        "Project",
-        back_populates="activities"
-    )
+    responsavel_id = Column(Integer, ForeignKey("user.id"), nullable=True)
 
-    team_id = Column(
-        Integer,
-        ForeignKey("teams.id")
-    )
+    obra = relationship("Obra", back_populates="activities")
 
-    responsavel_id = Column(
-        Integer,
-        ForeignKey("user.id")
-    )
+    project = relationship("Project", back_populates="activities")
 
-class ActivityUpdate(BaseModel):
-    titulo: str
+    team = relationship("Team", back_populates="activities")
 
-    descricao: str | None = None
-
-    status: str
-
-    prioridade: str
-
-    data_inicio: date
-
-    data_fim: date
-
-    responsavel: str
-
-    obra: str
+    responsavel = relationship("User", back_populates="atividades")

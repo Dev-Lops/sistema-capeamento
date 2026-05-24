@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -16,6 +18,8 @@ from app.config import (
     ALGORITHM
 )
 
+from app.core.roles import ADMIN, PLANNER
+
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
@@ -24,20 +28,19 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-):
+    db: Session = Depends(get_db),
+) -> User:
 
     credentials_exception = HTTPException(
         status_code=401,
-        detail="Credenciais inválidas"
+        detail="Credenciais inválidas",
     )
 
     try:
-
         payload = jwt.decode(
             token,
             SECRET_KEY,
-            algorithms=[ALGORITHM]
+            algorithms=[ALGORITHM],
         )
 
         email: str = payload.get("sub")
@@ -58,53 +61,20 @@ def get_current_user(
     return usuario
 
 
-"""
-===================================
-PERMISSÕES
-===================================
-"""
+def require_roles(*allowed_roles: str) -> Callable[..., User]:
+    def dependency(
+        usuario: User = Depends(get_current_user),
+    ) -> User:
+        if usuario.role not in allowed_roles:
+            raise HTTPException(
+                status_code=403,
+                detail="Sem permissão",
+            )
+        return usuario
+
+    return dependency
 
 
-def require_admin(
-    usuario: User = Depends(get_current_user)
-):
-
-    if usuario.role != "admin":
-
-        raise HTTPException(
-            status_code=403,
-            detail="Sem permissão"
-        )
-
-    return usuario
-
-
-def require_planner(
-    usuario: User = Depends(get_current_user)
-):
-
-    if usuario.role != "planner":
-
-        raise HTTPException(
-            status_code=403,
-            detail="Sem permissão"
-        )
-
-    return usuario
-
-
-def require_admin_or_planner(
-    usuario: User = Depends(get_current_user)
-):
-
-    if usuario.role not in [
-        "admin",
-        "planner"
-    ]:
-
-        raise HTTPException(
-            status_code=403,
-            detail="Sem permissão"
-        )
-
-    return usuario
+require_admin = require_roles(ADMIN)
+require_planner = require_roles(PLANNER)
+require_admin_or_planner = require_roles(ADMIN, PLANNER)

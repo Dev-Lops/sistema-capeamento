@@ -13,10 +13,7 @@ from app.schemas.team import (
     TeamResponse
 )
 
-from app.core.deps import (
-    get_current_user,
-    require_admin_or_planner
-)
+from app.core.deps import require_admin_or_planner
 
 from sqlalchemy.orm import Session, joinedload
 
@@ -62,7 +59,7 @@ LISTAR EQUIPES
 @router.get("/", response_model=list[TeamResponse])
 def listar_teams(
     db: Session = Depends(get_db),
-    usuario=Depends(get_current_user)
+    usuario=Depends(require_admin_or_planner),
 ):
 
     teams = db.query(Team).filter(Team.ativo == True).all()

@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_current_user
-from app.core.permissions import admin_required
+from app.core.deps import get_current_user, require_admin
 from app.db import get_db
 
 from app.models.user import User
@@ -68,7 +67,7 @@ def me(
     }
 @router.get("/admin")
 def rota_admin(
-        usuario=Depends(admin_required)
+        usuario=Depends(require_admin),
 ):
     return{
         "mensagem": "Área administrativa"

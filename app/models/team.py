@@ -42,3 +42,5 @@ class Team(Base):
     )
 
     company = relationship("Company", lazy="joined")
+
+    activities = relationship("Activity", back_populates="team")

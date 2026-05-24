@@ -37,7 +37,8 @@ LISTAR
     ]
 )
 def listar_empresas(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
     empresas = db.query(

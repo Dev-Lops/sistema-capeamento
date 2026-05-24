@@ -12,6 +12,8 @@ from app.schemas.project import (
     ProjectResponse
 )
 
+from app.core.deps import require_admin_or_planner
+
 router = APIRouter(
     prefix="/projects",
     tags=["Projects"]
@@ -24,7 +26,8 @@ router = APIRouter(
 )
 def create_project(
     data: ProjectCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
     project = Project(**data.model_dump())
@@ -43,7 +46,8 @@ def create_project(
     response_model=list[ProjectResponse]
 )
 def list_projects(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario=Depends(require_admin_or_planner),
 ):
 
     return db.query(Project).all()

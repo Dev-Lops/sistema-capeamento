@@ -1,72 +1,35 @@
 import { Navigate } from "react-router-dom";
 
+import { useAuth } from "../context/AuthContext";
+
 type Props = {
   children: React.ReactNode;
   allowedRoles?: string[];
 };
 
-function ProtectedRoute({
-  children,
-  allowedRoles,
-}: Props) {
+function ProtectedRoute({ children, allowedRoles }: Props) {
+  const { user, loading } = useAuth();
 
-  /*
-  ============================
-  TOKEN
-  ============================
-  */
-
-  const token =
-    localStorage.getItem("token");
-
-  /*
-  ============================
-  USUÁRIO
-  ============================
-  */
-
-  const userString =
-    localStorage.getItem("user");
-
-  const user =
-    userString
-      ? JSON.parse(userString)
-      : null;
-
-  /*
-  ============================
-  SEM TOKEN
-  ============================
-  */
-
-  if (!token) {
-
+  if (loading) {
     return (
-      <Navigate to="/login" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <p className="text-slate-600">Carregando...</p>
+      </div>
     );
   }
 
-  /*
-  ============================
-  VERIFICA ROLE
-  ============================
-  */
+  const token = localStorage.getItem("token");
+
+  if (!token || !user) {
+    return <Navigate to="/login" replace />;
+  }
 
   if (
     allowedRoles &&
-    !allowedRoles.includes(user?.role)
+    !allowedRoles.includes(user.role)
   ) {
-
-    return (
-      <Navigate to="/dashboard" />
-    );
+    return <Navigate to="/dashboard" replace />;
   }
-
-  /*
-  ============================
-  ACESSO LIBERADO
-  ============================
-  */
 
   return children;
 }
