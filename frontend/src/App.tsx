@@ -14,7 +14,7 @@ import Activities from "./pages/Activities";
 import Login from "./pages/Login";
 
 import ProtectedRoute
-  from "./components/ProtectedRoute";
+from "./components/ProtectedRoute";
 
 
 function App() {
@@ -54,13 +54,20 @@ function App() {
         <Route
           path="/activities"
           element={
-            <ProtectedRoute>
+
+            <ProtectedRoute
+              allowedRoles={[
+                "admin",
+                "gestor"
+              ]}
+            >
 
               <Layout>
                 <Activities />
               </Layout>
 
             </ProtectedRoute>
+
           }
         />
 
@@ -70,7 +77,9 @@ function App() {
         <Route
           path="*"
           element={
-            <Navigate to="/login" />
+            <Navigate
+              to="/dashboard"
+            />
           }
         />
 

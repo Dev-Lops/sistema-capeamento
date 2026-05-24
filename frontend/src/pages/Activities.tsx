@@ -11,9 +11,32 @@ import api from "../services/api";
 
 import type { Activity } from "../types/activity";
 
+import {
+  useAuth
+} from "../context/AuthContext";
+
 
 function Activities() {
 
+  const { user } = useAuth();
+
+  const isAdmin =
+  user?.role === "admin";
+
+const isPlanner =
+  user?.role === "planner";
+
+// const isOperador =
+//   user?.role === "operador";
+
+const podeCriar =
+  isAdmin || isPlanner;
+
+const podeEditar =
+  isAdmin || isPlanner;
+
+const podeExcluir =
+  isAdmin;
   /*
   ===================================
   ESTADOS DO FORMULÁRIO
@@ -221,6 +244,10 @@ function Activities() {
   function editarAtividade(
     activity: Activity
   ) {
+    if (!podeEditar) {
+    return;
+  }
+
 
     setEditingId(activity.id);
 
@@ -314,6 +341,11 @@ function Activities() {
   async function deletarAtividade(
     id: number
   ) {
+
+
+  if (!podeExcluir) {
+    return;
+  }
 
     const confirmar =
       confirm(
@@ -425,23 +457,32 @@ function Activities() {
         Atividades
       </h1>
 
+      <p className="text-gray-500 mb-6">
+  Perfil:
+  <strong className="ml-2">
+    {user?.role}
+  </strong>
+</p>
+
 
       {/* FORMULÁRIO */}
+{
+  podeCriar && (
 
-      <form
-        onSubmit={
-          editingId
-            ? atualizarAtividade
-            : criarAtividade
-        }
-        className="
-          bg-white
-          p-8
-          rounded-xl
-          shadow
-          max-w-2xl
-        "
-      >
+    <form
+      onSubmit={
+        editingId
+          ? atualizarAtividade
+          : criarAtividade
+      }
+      className="
+        bg-white
+        p-8
+        rounded-xl
+        shadow
+        max-w-2xl
+      "
+    >
 
         {/* TÍTULO */}
 
@@ -725,7 +766,7 @@ function Activities() {
         }
 
       </form>
-
+    )}
 
       {/* TABELA */}
 
@@ -897,40 +938,51 @@ function Activities() {
 
                   <td className="py-4">
 
-                    <button
-                      onClick={() =>
-                        editarAtividade(
-                          activity
-                        )
-                      }
-                      className="
-                        bg-yellow-500
-                        text-white
-                        px-4
-                        py-2
-                        rounded
-                        mr-2
-                      "
-                    >
-                      Editar
-                    </button>
+                   {
+  podeEditar && (
 
-                    <button
-                      onClick={() =>
-                        deletarAtividade(
-                          activity.id
-                        )
-                      }
-                      className="
-                        bg-red-500
-                        text-white
-                        px-4
-                        py-2
-                        rounded
-                      "
-                    >
-                      Excluir
-                    </button>
+    <button
+      onClick={() =>
+        editarAtividade(
+          activity
+        )
+      }
+      className="
+        bg-yellow-500
+        text-white
+        px-4
+        py-2
+        rounded
+        mr-2
+      "
+    >
+      Editar
+    </button>
+
+  )
+}
+                    {
+  podeExcluir && (
+
+    <button
+      onClick={() =>
+        deletarAtividade(
+          activity.id
+        )
+      }
+      className="
+        bg-red-500
+        text-white
+        px-4
+        py-2
+        rounded
+      "
+    >
+      Excluir
+    </button>
+
+  )
+}
 
                   </td>
 
