@@ -94,5 +94,3 @@ class ActivityUpdate(BaseModel):
     responsavel: str
 
     obra: str
-
-    ativo: bool
