@@ -54,7 +54,17 @@ function Activities() {
   setLoading] =
     useState(false);
 
+  const [busca,
+  setBusca] =
+    useState("");
 
+  const [filtroStatus,
+  setFiltroStatus] =
+    useState("");
+
+  const [filtroPrioridade,
+  setFiltroPrioridade] =
+    useState("");
   /*
   ===================================
   LISTA DE ATIVIDADES
@@ -333,6 +343,64 @@ function Activities() {
     }
   }
 
+  const filteredActivities =
+  activities.filter(
+    (activity) => {
+
+      const matchBusca =
+
+        activity.titulo
+          .toLowerCase()
+          .includes(
+            busca.toLowerCase()
+          )
+
+        ||
+
+        activity.responsavel
+          .toLowerCase()
+          .includes(
+            busca.toLowerCase()
+          )
+
+        ||
+
+        activity.obra
+          .toLowerCase()
+          .includes(
+            busca.toLowerCase()
+          );
+
+
+      const matchStatus =
+
+        filtroStatus === ""
+
+        ||
+
+        activity.status ===
+        filtroStatus;
+
+
+      const matchPrioridade =
+
+        filtroPrioridade === ""
+
+        ||
+
+        activity.prioridade ===
+        filtroPrioridade;
+
+
+      return (
+        matchBusca
+        &&
+        matchStatus
+        &&
+        matchPrioridade
+      );
+    }
+  );
 
   /*
   ===================================
@@ -342,7 +410,10 @@ function Activities() {
 
   return (
 
+
     <div className="p-10">
+
+
 
       <h1
         className="
@@ -668,6 +739,101 @@ function Activities() {
         "
       >
 
+
+         <div
+  className="
+    flex
+    gap-4
+    mb-6
+  "
+>
+
+  <input
+    type="text"
+    placeholder="
+      Buscar atividade
+    "
+    value={busca}
+    onChange={(e) =>
+      setBusca(
+        e.target.value
+      )
+    }
+    className="
+      border
+      p-3
+      rounded
+      flex-1
+    "
+  />
+
+
+  <select
+    value={filtroStatus}
+    onChange={(e) =>
+      setFiltroStatus(
+        e.target.value
+      )
+    }
+    className="
+      border
+      p-3
+      rounded
+    "
+  >
+
+    <option value="">
+      Todos status
+    </option>
+
+    <option value="planejado">
+      Planejado
+    </option>
+
+    <option value="em_execucao">
+      Em execução
+    </option>
+
+    <option value="concluido">
+      Concluído
+    </option>
+
+  </select>
+
+
+  <select
+    value={filtroPrioridade}
+    onChange={(e) =>
+      setFiltroPrioridade(
+        e.target.value
+      )
+    }
+    className="
+      border
+      p-3
+      rounded
+    "
+  >
+
+    <option value="">
+      Todas prioridades
+    </option>
+
+    <option value="baixa">
+      Baixa
+    </option>
+
+    <option value="media">
+      Média
+    </option>
+
+    <option value="alta">
+      Alta
+    </option>
+
+  </select>
+
+</div>
         <h2
           className="
             text-2xl
@@ -707,7 +873,7 @@ function Activities() {
           <tbody>
 
             {
-              activities.map(
+              filteredActivities.map(
                 (activity) => (
 
                 <tr
