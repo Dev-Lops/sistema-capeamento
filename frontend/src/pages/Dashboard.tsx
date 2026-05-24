@@ -4,22 +4,20 @@ import {
 } from "react";
 
 import {
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+  Activity,
+  CheckCircle2,
+  Clock3,
+  AlertTriangle,
+} from "lucide-react";
 
 import api from "../services/api";
 
 import type {
-  Activity
+  Activity as ActivityType
 } from "../types/activity";
+
+import KPICard
+from "../components/dashboard/KPICard";
 
 
 function Dashboard() {
@@ -32,7 +30,7 @@ function Dashboard() {
 
   const [activities,
     setActivities] =
-      useState<Activity[]>([]);
+      useState<ActivityType[]>([]);
 
   const [loading,
     setLoading] =
@@ -108,75 +106,6 @@ function Dashboard() {
 
   /*
   ===================================
-  DADOS DOS GRÁFICOS
-  ===================================
-  */
-
-  const statusData = [
-
-    {
-      name: "Planejado",
-      value: planejadas,
-    },
-
-    {
-      name: "Em execução",
-      value: emExecucao,
-    },
-
-    {
-      name: "Concluído",
-      value: concluidas,
-    },
-  ];
-
-
-  const prioridadeData = [
-
-    {
-      name: "Baixa",
-      total: activities.filter(
-        (activity) =>
-          activity.prioridade ===
-          "baixa"
-      ).length,
-    },
-
-    {
-      name: "Média",
-      total: activities.filter(
-        (activity) =>
-          activity.prioridade ===
-          "media"
-      ).length,
-    },
-
-    {
-      name: "Alta",
-      total: activities.filter(
-        (activity) =>
-          activity.prioridade ===
-          "alta"
-      ).length,
-    },
-  ];
-
-
-  /*
-  ===================================
-  CORES
-  ===================================
-  */
-
-  const COLORS = [
-    "#3B82F6",
-    "#F59E0B",
-    "#10B981",
-  ];
-
-
-  /*
-  ===================================
   LOADING
   ===================================
   */
@@ -185,7 +114,14 @@ function Dashboard() {
 
     return (
 
-      <div className="p-10">
+      <div
+        className="
+          min-h-screen
+          bg-[#0f172a]
+          text-white
+          p-10
+        "
+      >
         Carregando dashboard...
       </div>
     );
@@ -200,302 +136,370 @@ function Dashboard() {
 
   return (
 
-    <div className="p-10">
+    <div
+      className="
+        min-h-screen
+        bg-[#0f172a]
+        text-white
+        p-10
+      "
+    >
 
-      <h1
+      {/* HEADER */}
+
+      <div
         className="
-          text-3xl
-          font-bold
-          mb-8
+          flex
+          items-center
+          justify-between
+          mb-10
         "
       >
-        Dashboard Operacional
-      </h1>
+
+        <div>
+
+          <p className="text-gray-400">
+            Sistema operacional
+          </p>
+
+          <h1
+            className="
+              text-5xl
+              font-bold
+              mt-2
+            "
+          >
+            Dashboard
+          </h1>
+
+        </div>
 
 
-      {/* KPIs */}
+        <div
+          className="
+            flex
+            items-center
+            gap-3
+            bg-emerald-500/10
+            border
+            border-emerald-500/20
+            px-5
+            py-3
+            rounded-2xl
+          "
+        >
+
+          <div
+            className="
+              w-3
+              h-3
+              rounded-full
+              bg-emerald-400
+            "
+          />
+
+          <span
+            className="
+              text-emerald-300
+              font-medium
+            "
+          >
+            Sistema operacional ativo
+          </span>
+
+        </div>
+
+      </div>
+
+
+      {/* KPI GRID */}
 
       <div
         className="
           grid
           grid-cols-1
-          md:grid-cols-4
+          md:grid-cols-2
+          xl:grid-cols-4
           gap-6
           mb-10
         "
       >
 
-        <div
-          className="
-            bg-white
-            p-6
-            rounded-xl
-            shadow
-          "
-        >
-          <p className="text-gray-500">
-            Total
-          </p>
-
-          <h2
-            className="
-              text-4xl
-              font-bold
-            "
-          >
-            {total}
-          </h2>
-        </div>
+        <KPICard
+          title="Total de atividades"
+          value={total}
+          subtitle="Atividades registradas"
+          glow="hover:shadow-blue-500/20"
+          icon={
+            <Activity size={28} />
+          }
+        />
 
 
-        <div
-          className="
-            bg-white
-            p-6
-            rounded-xl
-            shadow
-          "
-        >
-          <p className="text-gray-500">
-            Planejadas
-          </p>
-
-          <h2
-            className="
-              text-4xl
-              font-bold
-              text-blue-500
-            "
-          >
-            {planejadas}
-          </h2>
-        </div>
+        <KPICard
+          title="Planejadas"
+          value={planejadas}
+          subtitle="Aguardando execução"
+          glow="hover:shadow-yellow-500/20"
+          icon={
+            <Clock3 size={28} />
+          }
+        />
 
 
-        <div
-          className="
-            bg-white
-            p-6
-            rounded-xl
-            shadow
-          "
-        >
-          <p className="text-gray-500">
-            Em execução
-          </p>
-
-          <h2
-            className="
-              text-4xl
-              font-bold
-              text-yellow-500
-            "
-          >
-            {emExecucao}
-          </h2>
-        </div>
+        <KPICard
+          title="Em execução"
+          value={emExecucao}
+          subtitle="Operações em andamento"
+          glow="hover:shadow-orange-500/20"
+          icon={
+            <AlertTriangle size={28} />
+          }
+        />
 
 
-        <div
-          className="
-            bg-white
-            p-6
-            rounded-xl
-            shadow
-          "
-        >
-          <p className="text-gray-500">
-            Concluídas
-          </p>
-
-          <h2
-            className="
-              text-4xl
-              font-bold
-              text-green-500
-            "
-          >
-            {concluidas}
-          </h2>
-        </div>
+        <KPICard
+          title="Concluídas"
+          value={concluidas}
+          subtitle="Execuções finalizadas"
+          glow="hover:shadow-emerald-500/20"
+          icon={
+            <CheckCircle2 size={28} />
+          }
+        />
 
       </div>
 
 
-      {/* GRÁFICOS */}
+      {/* GRID INFERIOR */}
 
       <div
         className="
           grid
           grid-cols-1
-          lg:grid-cols-2
-          gap-8
+          xl:grid-cols-3
+          gap-6
         "
       >
 
-        {/* STATUS */}
+        {/* FEED */}
 
         <div
           className="
-            bg-white
-            p-6
-            rounded-xl
-            shadow
+            xl:col-span-2
+            rounded-2xl
+            border
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
+            p-8
           "
         >
 
-          <h2
+          <div
             className="
-              text-xl
-              font-bold
-              mb-6
+              flex
+              items-center
+              justify-between
+              mb-8
             "
           >
-            Status das atividades
-          </h2>
 
-          <ResponsiveContainer
-            width="100%"
-            height={300}
-          >
-
-            <PieChart>
-
-              <Pie
-                data={statusData}
-                dataKey="value"
-                outerRadius={100}
-                label
-              >
-
-                {
-                  statusData.map(
-                    (_, index) => (
-
-                    <Cell
-                      key={index}
-                      fill={
-                        COLORS[index]
-                      }
-                    />
-
-                  ))
-                }
-
-              </Pie>
-
-              <Tooltip />
-
-            </PieChart>
-
-          </ResponsiveContainer>
-
-        </div>
-
-
-        {/* PRIORIDADE */}
-
-        <div
-          className="
-            bg-white
-            p-6
-            rounded-xl
-            shadow
-          "
-        >
-
-          <h2
-            className="
-              text-xl
-              font-bold
-              mb-6
-            "
-          >
-            Prioridades
-          </h2>
-
-          <ResponsiveContainer
-            width="100%"
-            height={300}
-          >
-
-            <BarChart
-              data={prioridadeData}
+            <h2
+              className="
+                text-2xl
+                font-bold
+              "
             >
+              Atividades recentes
+            </h2>
 
-              <XAxis dataKey="name" />
+            <span
+              className="
+                text-sm
+                text-gray-400
+              "
+            >
+              Últimas operações
+            </span>
 
-              <YAxis />
+          </div>
 
-              <Tooltip />
 
-              <Bar dataKey="total" />
+          <div className="space-y-4">
 
-            </BarChart>
+            {
+              activities
+                .slice(0, 5)
+                .map((activity) => (
 
-          </ResponsiveContainer>
+                <div
+                  key={activity.id}
+                  className="
+                    p-5
+                    rounded-xl
+                    border
+                    border-white/5
+                    bg-white/5
+                    hover:bg-white/10
+                    transition-all
+                  "
+                >
+
+                  <div
+                    className="
+                      flex
+                      items-center
+                      justify-between
+                    "
+                  >
+
+                    <div>
+
+                      <h3
+                        className="
+                          font-semibold
+                          text-lg
+                        "
+                      >
+                        {activity.titulo}
+                      </h3>
+
+                      <p
+                        className="
+                          text-gray-400
+                          mt-1
+                        "
+                      >
+                        {activity.obra}
+                      </p>
+
+                    </div>
+
+
+                    <div
+                      className="
+                        px-3
+                        py-1
+                        rounded-full
+                        text-sm
+                        bg-white/10
+                      "
+                    >
+                      {activity.status}
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))
+            }
+
+          </div>
 
         </div>
 
-      </div>
 
+        {/* PAINEL LATERAL */}
 
-      {/* RECENTES */}
-
-      <div
-        className="
-          bg-white
-          p-6
-          rounded-xl
-          shadow
-          mt-10
-        "
-      >
-
-        <h2
+        <div
           className="
-            text-xl
-            font-bold
-            mb-6
+            rounded-2xl
+            border
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
+            p-8
           "
         >
-          Atividades recentes
-        </h2>
 
-        <div className="space-y-4">
+          <h2
+            className="
+              text-2xl
+              font-bold
+              mb-8
+            "
+          >
+            Resumo operacional
+          </h2>
 
-          {
-            activities
-              .slice(0, 5)
-              .map((activity) => (
 
-              <div
-                key={activity.id}
+          <div className="space-y-6">
+
+            <div>
+
+              <p className="text-gray-400">
+                Taxa de conclusão
+              </p>
+
+              <h3
                 className="
-                  border
-                  rounded-lg
-                  p-4
+                  text-4xl
+                  font-bold
+                  mt-2
                 "
               >
+                {
+                  total > 0
+                    ? Math.round(
+                        (
+                          concluidas
+                          /
+                          total
+                        ) * 100
+                      )
+                    : 0
+                }%
+              </h3>
 
-                <h3 className="font-bold">
-                  {activity.titulo}
-                </h3>
+            </div>
 
-                <p className="text-gray-500">
-                  {activity.obra}
-                </p>
 
-                <p className="text-sm mt-2">
-                  Status:
-                  {" "}
-                  {activity.status}
-                </p>
+            <div>
 
-              </div>
+              <p className="text-gray-400">
+                Operações ativas
+              </p>
 
-            ))
-          }
+              <h3
+                className="
+                  text-4xl
+                  font-bold
+                  mt-2
+                "
+              >
+                {emExecucao}
+              </h3>
+
+            </div>
+
+
+            <div>
+
+              <p className="text-gray-400">
+                Atividades críticas
+              </p>
+
+              <h3
+                className="
+                  text-4xl
+                  font-bold
+                  mt-2
+                "
+              >
+                {
+                  activities.filter(
+                    (activity) =>
+                      activity.prioridade
+                      === "alta"
+                  ).length
+                }
+              </h3>
+
+            </div>
+
+          </div>
 
         </div>
 
