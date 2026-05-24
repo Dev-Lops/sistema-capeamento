@@ -98,6 +98,27 @@ const {
           Atividades
         </Link>
 
+          <Link
+          to="/companies"
+          className="
+            hover:bg-gray-700
+            p-3
+            rounded
+          "
+        >
+          Empresas
+        </Link>
+
+          <Link
+          to="/works"
+          className="
+            hover:bg-gray-700
+            p-3
+            rounded
+          "
+        >
+          Obras
+        </Link>
 
         {/* LOGOUT */}
 
