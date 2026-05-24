@@ -5,6 +5,9 @@ from sqlalchemy import Integer, Column, String, Text, Date, Boolean
 
 from app.db import Base
 
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+
 class Activity(Base):
 
     __tablename__ =  "activities"
@@ -53,6 +56,16 @@ class Activity(Base):
     ativo = Column(
         Boolean,
         default=True
+    )
+
+    project_id = Column(
+        Integer,
+        ForeignKey("projects.id")
+    )
+
+    project = relationship(
+        "Project",
+        back_populates="activities"
     )
 
 class ActivityUpdate(BaseModel):
