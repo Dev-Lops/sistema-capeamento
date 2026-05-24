@@ -77,12 +77,14 @@ python -m app.migrate_phase3
 python -m app.seed
 ```
 
-Ou recrie o banco do zero (pare o uvicorn antes):
+Ou recrie o banco do zero — **pare o uvicorn antes** (`Ctrl+C` no terminal dele):
 
 ```bash
 python -m app.reset_db
 python -m app.seed
 ```
+
+Se `reset_db` travar, outro processo ainda está usando o Postgres (uvicorn, seed antigo, DBeaver). Feche tudo e rode de novo.
 
 > `dropdb`/`createdb` sem `-h localhost` costumam falhar com *peer authentication*
 > no Linux. Use o `reset_db` acima ou:
