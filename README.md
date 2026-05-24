@@ -82,6 +82,17 @@ alembic stamp head
 
 `python -m app.create_tables` é atalho para `alembic upgrade head`.
 
+## Testes e CI (Fase 5)
+
+```bash
+pip install -r requirements-dev.txt
+pytest -v
+```
+
+Cobertura principal: login, permissões por role, CRUD de atividades e dashboard do operador.
+
+O workflow `.github/workflows/ci.yml` roda `pytest` no backend e `npm run build` no frontend a cada push/PR na `main`.
+
 ## Domínio unificado (Fase 3)
 
 - **Obra** (`/obras`) — cadastro completo (nome, cliente, local). Substitui `/works`.
