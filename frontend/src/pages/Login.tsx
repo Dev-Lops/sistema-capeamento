@@ -8,46 +8,84 @@ function Login() {
 
   const [senha, setSenha] = useState("");
 
-  async function handleLogin(
-    event: React.FormEvent
-  ) {
+async function handleLogin(
+  event: React.FormEvent
+) {
 
-    event.preventDefault();
+  event.preventDefault();
 
-    try {
+  try {
 
-      const response = await api.post(
-        "/auth/login",
-        new URLSearchParams({
-          username: email,
-          password: senha,
-        }),
-        {
-          headers: {
-            "Content-Type":
-              "application/x-www-form-urlencoded",
-          },
-        }
-      );
+    /*
+    ============================
+    LOGIN
+    ============================
+    */
 
-      const token = response.data.access_token;
+    const response = await api.post(
+      "/auth/login",
+      new URLSearchParams({
+        username: email,
+        password: senha,
+      }),
+      {
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded",
+        },
+      }
+    );
 
-      localStorage.setItem(
-        "token",
-        token
-      );
+    /*
+    ============================
+    TOKEN
+    ============================
+    */
 
-      window.location.href = "/dashboard";
+    const token =
+      response.data.access_token;
 
-      // console.log(token);
+    localStorage.setItem(
+      "token",
+      token
+    );
 
-    } catch (error) {
+    /*
+    ============================
+    BUSCAR USUÁRIO
+    ============================
+    */
 
-      console.error(error);
+    const me =
+      await api.get("/auth/me");
 
-      alert("Erro no login");
-    }
+    /*
+    ============================
+    SALVAR USUÁRIO
+    ============================
+    */
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(me.data)
+    );
+
+    /*
+    ============================
+    REDIRECIONAR
+    ============================
+    */
+
+    window.location.href =
+      "/dashboard";
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Erro no login");
   }
+}
 
   return (
     <div>

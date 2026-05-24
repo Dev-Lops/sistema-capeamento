@@ -133,15 +133,19 @@ export function AuthProvider({
 
   function logout() {
 
-    localStorage.removeItem(
-      "token"
-    );
+  localStorage.removeItem(
+    "token"
+  );
 
-    setUser(null);
+  localStorage.removeItem(
+    "user"
+  );
 
-    window.location.href =
-      "/login";
-  }
+  setUser(null);
+
+  window.location.href =
+    "/login";
+}
 
 
   return (
