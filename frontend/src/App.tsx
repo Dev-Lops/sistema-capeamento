@@ -2,14 +2,14 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 
-import Login from "./pages/Login";
+import Layout from "./components/Layout";
 
 import Dashboard from "./pages/Dashboard";
 
-import PrivateRoute from "./routes/PrivateRoute";
-import Activities from "./pages/Activities.tsx";
+import Activities from "./pages/Activities";
 
 function App() {
 
@@ -17,31 +17,32 @@ function App() {
 
     <BrowserRouter>
 
-      <Routes>
+      <Layout>
 
-        <Route
-          path="/"
-          element={<Login />}
-        />
+        <Routes>
 
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to="/dashboard"
+              />
+            }
+          />
 
-        <Route
-        path="/activities"
-        element={
-            <PrivateRoute>
-                <Activities/>
-            </PrivateRoute>
-        }/>
+          <Route
+            path="/dashboard"
+            element={<Dashboard />}
+          />
 
-      </Routes>
+          <Route
+            path="/activities"
+            element={<Activities />}
+          />
+
+        </Routes>
+
+      </Layout>
 
     </BrowserRouter>
   );

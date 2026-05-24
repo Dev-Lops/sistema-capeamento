@@ -49,9 +49,9 @@ function Dashboard() {
 
   useEffect(() => {
 
-    carregarDashboard();
+    void carregarDashboard();
 
-    carregarAtividades();
+    void carregarAtividades();
 
   }, []);
 
@@ -65,51 +65,6 @@ function Dashboard() {
   return (
 
     <div className="flex min-h-screen">
-
-      {/* SIDEBAR */}
-
-      <aside
-        className="
-          w-64
-          bg-slate-900
-          text-white
-          p-6
-        "
-      >
-
-        <h1
-          className="
-            text-2xl
-            font-bold
-            mb-10
-          "
-        >
-          Capeamento
-        </h1>
-
-        <nav className="flex flex-col gap-4">
-
-          <button
-            className="
-              text-left
-              hover:text-blue-400
-            "
-          >
-            Dashboard
-          </button>
-
-          <button
-            className="
-              text-left
-              hover:text-blue-400
-            "
-          >
-            <a href='/activities/'>Atividades</a>
-          </button>
-
-        </nav>
-
-      </aside>
 
       {/* CONTEÚDO */}
 
